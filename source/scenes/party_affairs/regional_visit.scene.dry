@@ -1,0 +1,76 @@
+title: Визит в регион
+tags: campaign_actions
+new-page: true
+view-if: regional_visit_timer <= 0
+card-image: img/regions.jpg
+on-arrival: regional_visit_timer = 4
+
+= Визит в регион
+
+Где провести следующий визит?
+
+- @visit_central: Центральная Россия
+- @visit_south: Юг России (Красный пояс)
+- @visit_volga: Поволжье
+- @visit_siberia: Сибирь
+- @main: Отложить
+
+@visit_central
+on-arrival: {!
+Q.actions_this_turn += 1;
+Q.central_modifier += 2;
+Q.player_support += 0.5;
+!}
+
+= Визит в Центральную Россию
+
+Вы посетили Москву и области Центральной России.
+
+Позиции в Центре укрепились.
+
+- @main: Продолжить
+
+@visit_south
+on-arrival: {!
+Q.actions_this_turn += 1;
+Q.south_modifier += 3;
+Q.player_support += 1;
+!}
+
+= Визит на Юг России
+
+Вы посетили регионы Юга России — Красный пояс.
+
+Сильная поддержка! Позиции на Юге укрепились!
+
+- @main: Продолжить
+
+@visit_volga
+on-arrival: {!
+Q.actions_this_turn += 1;
+Q.volga_modifier += 2;
+Q.player_support += 0.8;
+!}
+
+= Визит в Поволжье
+
+Вы посетили регионы Поволжья.
+
+Позиции в Поволжье укрепились.
+
+- @main: Продолжить
+
+@visit_siberia
+on-arrival: {!
+Q.actions_this_turn += 1;
+Q.siberia_modifier += 2;
+Q.player_support += 0.7;
+!}
+
+= Визит в Сибирь
+
+Вы посетили Сибирь.
+
+Позиции в Сибири укрепились.
+
+- @main: Продолжить

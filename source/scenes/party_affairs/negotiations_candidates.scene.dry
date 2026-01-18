@@ -1,0 +1,57 @@
+title: Переговоры с кандидатами
+tags: negotiations_actions
+new-page: true
+view-if: negotiations_timer <= 0
+card-image: img/negotiations.jpg
+on-arrival: negotiations_timer = 4
+
+= Переговоры с другими кандидатами
+
+С кем вести переговоры?
+
+- @negotiate_lebed: Александр Лебедь
+- @negotiate_yavlinsky: Григорий Явлинский
+- @negotiate_zhirinovsky: Владимир Жириновский
+- @main: Отложить
+
+@negotiate_lebed
+on-arrival: {!
+Q.actions_this_turn += 1;
+Q.lebed_relation += 10;
+!}
+
+= Переговоры с Лебедем
+
+Переговоры с генералом Лебедем прошли конструктивно.
+
+Отношения улучшились.
+
+- @main: Продолжить
+
+@negotiate_yavlinsky
+on-arrival: {!
+Q.actions_this_turn += 1;
+Q.yavlinsky_relation += 5;
+!}
+
+= Переговоры с Явлинским
+
+Явлинский выдвигает жесткие требования, но диалог идет.
+
+Отношения немного улучшились.
+
+- @main: Продолжить
+
+@negotiate_zhirinovsky
+on-arrival: {!
+Q.actions_this_turn += 1;
+Q.zhirinovsky_relation += 8;
+!}
+
+= Переговоры с Жириновским
+
+Жириновский готов к торгу.
+
+Отношения улучшились.
+
+- @main: Продолжить

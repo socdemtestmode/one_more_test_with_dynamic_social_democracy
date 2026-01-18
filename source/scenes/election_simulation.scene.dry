@@ -1,319 +1,353 @@
-title: Election Simulation
-set-jump: post_election
-
-
-- @1928: 1928 historical scenario
-- @1930: 1930 historical scenario
-- @1932: 1932 (July) historical scenario
-
-@1928
+title: Результаты выборов
+new-page: true
 on-arrival: {!
-Q.workers = 46; // industry and trade
-Q.old_middle = 13; // "old mittelstand"
-// 16.4 trade & commerce, 6.6 public and private services, 4.4 domestic help
-Q.new_middle = 14; // "new mittelstand"
-Q.rural = 25; // agriculture and forestry employment... but many of those are proletarians so...
-// source: https://surface.syr.edu/cgi/viewcontent.cgi?filename=3&article=1016&context=books&type=additional page 43, table 3.3
-Q.unemployed = 8.6;
-Q.catholics = 30;
+// Финальный расчёт результатов первого тура
 
-Q.classes = ['workers', 'old_middle', 'new_middle', 'rural', 'unemployed', 'catholics'];
-Q.parties = ['spd', 'kpd', 'z', 'ddp', 'dvp', 'dnvp', 'nsdap', 'other'];
+// Базовые значения
+var playerBase = Q.player_support;
+var yeltsinBase = Q.yeltsin_support;
+var lebedBase = Q.lebed_support;
+var yavlinskyBase = Q.yavlinsky_support;
+var zhirinovskyBase = Q.zhirinovsky_support;
+var othersBase = Q.minor_candidates_support + Q.others_support;
 
-// Support for party by social group
-// they don't have to sum to 100 since the electoral calculations will be normalized.
-Q.workers_spd = 65;
-Q.workers_kpd = 20;
-Q.workers_z = 5;
-Q.workers_ddp = 0;
-Q.workers_dvp = 0;
-Q.workers_dnvp = 5;
-Q.workers_nsdap = 0;
-Q.workers_other = 10;
+// Модификаторы кампании
+var campaignBonus = 0;
+if (Q.campaign_slogan) campaignBonus += 0.5;
+if (Q.program_adopted) campaignBonus += 1;
 
-Q.old_middle_spd = 5;
-Q.old_middle_kpd = 0;
-Q.old_middle_z = 5;
-Q.old_middle_ddp= 10;
-Q.old_middle_dvp = 25;
-Q.old_middle_dnvp = 25;
-Q.old_middle_nsdap = 10;
-Q.old_middle_other = 10;
+// Модификаторы от визитов в регионы
+var regionalBonus = 0;
+regionalBonus += (Q.central_modifier - 0) * 0.1;
+regionalBonus += (Q.south_modifier - 10) * 0.2;
+regionalBonus += (Q.volga_modifier - 8) * 0.15;
 
-Q.new_middle_spd = 5;
-Q.new_middle_kpd = 0;
-Q.new_middle_z = 10;
-Q.new_middle_ddp= 25;
-Q.new_middle_dvp = 25;
-Q.new_middle_dnvp = 10;
-Q.new_middle_nsdap = 5;
-Q.new_middle_other = 15;
-
-Q.rural_spd = 10;
-Q.rural_kpd = 0;
-Q.rural_z = 5;
-Q.rural_ddp= 5;
-Q.rural_dvp = 15;
-Q.rural_dnvp = 45;
-Q.rural_nsdap = 5;
-Q.rural_other = 10;
-
-Q.unemployed_spd = 25;
-Q.unemployed_kpd = 55;
-Q.unemployed_z = 1;
-Q.unemployed_ddp = 0;
-Q.unemployed_dvp = 0;
-Q.unemployed_dnvp = 5;
-Q.unemployed_nsdap = 15;
-Q.unemployed_other = 9;
-
-Q.catholics_spd = 15;
-Q.catholics_kpd = 5;
-Q.catholics_z = 50;
-Q.catholics_ddp = 0;
-Q.catholics_dvp = 5;
-Q.catholics_dnvp = 5;
-Q.catholics_nsdap = 0;
-Q.catholics_other = 10;
-!}
-go-to: election_algorithm
-set-jump: post_election
-
-@1930
-on-arrival: {!
-Q.workers = 46; // industry and trade
-Q.old_middle = 13; // "old mittelstand"
-// 16.4 trade & commerce, 6.6 public and private services, 4.4 domestic help
-Q.new_middle = 14; // "new mittelstand"
-Q.rural = 25; // agriculture and forestry employment... but many of those are proletarians so...
-// source: https://surface.syr.edu/cgi/viewcontent.cgi?filename=3&article=1016&context=books&type=additional page 43, table 3.3
-Q.unemployed = 20;
-Q.catholics = 30;
-
-Q.classes = ['workers', 'old_middle', 'new_middle', 'rural', 'unemployed', 'catholics'];
-Q.parties = ['spd', 'kpd', 'z', 'ddp', 'dvp', 'dnvp', 'nsdap', 'other'];
-
-// Support for party by social group
-// they don't have to sum to 100 since the electoral calculations will be normalized.
-Q.workers_spd = 60;
-Q.workers_kpd = 20;
-Q.workers_z = 5;
-Q.workers_ddp = 0;
-Q.workers_dvp = 0;
-Q.workers_dnvp = 0;
-Q.workers_nsdap = 10;
-Q.workers_other = 15;
-
-Q.old_middle_spd = 5;
-Q.old_middle_kpd = 0;
-Q.old_middle_z = 5;
-Q.old_middle_ddp= 5;
-Q.old_middle_dvp = 10;
-Q.old_middle_dnvp = 20;
-Q.old_middle_nsdap = 30;
-Q.old_middle_other = 15;
-
-Q.new_middle_spd = 5;
-Q.new_middle_kpd = 0;
-Q.new_middle_z = 5;
-Q.new_middle_ddp = 10;
-Q.new_middle_dvp = 20;
-Q.new_middle_dnvp = 10;
-Q.new_middle_nsdap = 25;
-Q.new_middle_other = 15;
-
-Q.rural_spd = 5;
-Q.rural_kpd = 0;
-Q.rural_z = 5;
-Q.rural_ddp= 5;
-Q.rural_dvp = 10;
-Q.rural_dnvp = 20;
-Q.rural_nsdap = 25;
-Q.rural_other = 15;
-
-Q.unemployed_spd = 20;
-Q.unemployed_kpd = 50;
-Q.unemployed_z = 0;
-Q.unemployed_ddp = 0;
-Q.unemployed_dvp = 0;
-Q.unemployed_dnvp = 5;
-Q.unemployed_nsdap = 25;
-Q.unemployed_other = 5;
-
-Q.catholics_spd = 10;
-Q.catholics_kpd = 5;
-Q.catholics_z = 50;
-Q.catholics_ddp = 0;
-Q.catholics_dvp = 5;
-Q.catholics_dnvp = 5;
-Q.catholics_nsdap = 10;
-Q.catholics_other = 5;
-
-Q.spd_r = 25;
-Q.kpd_r = 10;
-Q.z_r = 15;
-Q.ddp_r = 10;
-Q.dvp_r = 10;
-Q.dnvp_r = 14;
-Q.nsdap_r = 10;
-Q.other_r = 5;
-!}
-go-to: election_algorithm
-set-jump: post_election
-
-@1932
-on-arrival: {!
-Q.workers = 46; // industry and trade
-Q.old_middle = 13; // "old mittelstand"
-// 16.4 trade & commerce, 6.6 public and private services, 4.4 domestic help
-Q.new_middle = 14; // "new mittelstand"
-Q.rural = 25; // agriculture and forestry employment... but many of those are proletarians so...
-// source: https://surface.syr.edu/cgi/viewcontent.cgi?filename=3&article=1016&context=books&type=additional page 43, table 3.3
-Q.unemployed = 33;
-Q.catholics = 30;
-
-Q.classes = ['workers', 'old_middle', 'new_middle', 'rural', 'unemployed', 'catholics'];
-Q.parties = ['spd', 'kpd', 'z', 'ddp', 'dvp', 'dnvp', 'nsdap', 'other'];
-
-// Support for party by social group
-// they don't have to sum to 100 since the electoral calculations will be normalized.
-Q.workers_spd = 55;
-Q.workers_kpd = 20;
-Q.workers_z = 5;
-Q.workers_ddp = 0;
-Q.workers_dvp = 0;
-Q.workers_dnvp = 0;
-Q.workers_nsdap = 15;
-Q.workers_other = 5;
-
-Q.old_middle_spd = 0;
-Q.old_middle_kpd = 0;
-Q.old_middle_z = 5;
-Q.old_middle_ddp = 4;
-Q.old_middle_dvp = 4;
-Q.old_middle_dnvp = 15;
-Q.old_middle_nsdap = 70;
-Q.old_middle_other = 5;
-
-Q.new_middle_spd = 5;
-Q.new_middle_kpd = 0;
-Q.new_middle_z = 5;
-Q.new_middle_ddp = 10;
-Q.new_middle_dvp = 10;
-Q.new_middle_dnvp = 10;
-Q.new_middle_nsdap = 60;
-Q.new_middle_other = 5;
-
-Q.rural_spd = 0;
-Q.rural_kpd = 0;
-Q.rural_z = 5;
-Q.rural_ddp = 0;
-Q.rural_dvp = 5;
-Q.rural_dnvp = 15;
-Q.rural_nsdap = 65;
-Q.rural_other = 5;
-
-Q.unemployed_spd = 20;
-Q.unemployed_kpd = 40;
-Q.unemployed_z = 0;
-Q.unemployed_ddp = 0;
-Q.unemployed_dvp = 0;
-Q.unemployed_dnvp = 0;
-Q.unemployed_nsdap = 50;
-Q.unemployed_other = 5;
-
-Q.catholics_spd = 10;
-Q.catholics_kpd = 5;
-Q.catholics_z = 60;
-Q.catholics_ddp = 0;
-Q.catholics_dvp = 5;
-Q.catholics_dnvp = 5;
-Q.catholics_nsdap = 10;
-Q.catholics_other = 5;
-
-Q.spd_r = 25;
-Q.kpd_r = 10;
-Q.z_r = 15;
-Q.ddp_r = 10;
-Q.dvp_r = 10;
-Q.dnvp_r = 14;
-Q.nsdap_r = 10;
-Q.other_r = 5;
-!}
-go-to: election_algorithm
-set-jump: post_election
-
-@post_election
-on-arrival: {!
-// set congress proportion to votes
-Q.spd_r = Q.spd_votes;
-Q.z_r = Q.z_votes;
-Q.kpd_r = Q.kpd_votes;
-Q.ddp_r = Q.ddp_votes;
-Q.dvp_r = Q.dvp_votes;
-Q.dnvp_r = Q.dnvp_votes;
-Q.nsdap_r = Q.nsdap_votes;
-Q.other_r = Q.other_votes;
-
-// The largest party can only be the NSDAP or the <span style="color: #c00000;">**SPD**</span>.
-Q.largest_party = 'SPD';
-if (Q.nsdap_r >= Q.spd_r && Q.nsdap_r >= Q.kpd_r) {
-    Q.largest_party = 'NSDAP';
-}
-if (Q.kpd_r >= Q.spd_r && Q.kpd_r >= Q.nsdap_r) {
-    Q.largest_party = 'KPD';
+// Модификатор Давоса
+var davosBonus = 0;
+if (Q.davos_visited && Q.davos_speech_type == 1) {
+    davosBonus = 1;
 }
 
-// coalitions
-Q.weimar_coalition = Q.spd_r + Q.ddp_r + Q.z_r - 3;
-Q.grand_coalition = Q.spd_r + Q.ddp_r + Q.z_r + Q.dvp_r;
-Q.bourgeois_coalition = Q.ddp_r + Q.z_r + Q.dvp_r + Q.other_r;
-Q.center_right_coalition = Q.z_r + Q.ddp_r + Q.dvp_r + Q.other_r + Q.dnvp_r;
-Q.right_coalition = Q.z_r + Q.dvp_r + Q.other_r + Q.dnvp_r;
-Q.far_right_coalition = Q.dnvp_r + Q.nsdap_r;
-Q.left_coalition = Q.spd_r + Q.kpd_r;
-// this is an absurd concept lol
-Q.united_front_coalition = Q.spd_r + Q.kpd_r + Q.z_r + Q.ddp_r - 3;
-Q.anti_democratic_coalition = Q.kpd_r + Q.nsdap_r;
-// aka everyone except nazi, kpd, dnvp
-Q.neo_weimar_coalition = Q.spd_r + Q.ddp_r + Q.z_r + Q.dvp_r + Q.other_r;
+// Штраф за "красную угрозу"
+var redScarepenalty = Q.red_scare * 0.1;
+
+// Штраф за радикализм
+var radicalismPenalty = 0;
+if (Q.radicalism > 6) {
+    radicalismPenalty = (Q.radicalism - 6) * 1;
+}
+
+// Бонус административного ресурса для Ельцина
+var adminBonus = Q.admin_pressure * 0.3;
+
+// Бонус олигархов для Ельцина
+var oligarchBonus = 0;
+if (Q.oligarch_conspiracy) {
+    oligarchBonus = 12;
+}
+
+// Штраф чёрного пиара для игрока
+var blackPRPenalty = 0;
+if (Q.black_pr_campaign) {
+    blackPRPenalty = 4;
+}
+
+// Модификатор антифальсификационной коалиции
+var antiFraudBonus = 0;
+if (Q.anti_fraud_coalition) {
+    adminBonus *= 0.6;
+    antiFraudBonus = 1;
+}
+
+// Итоговый расчёт
+Q.player_final = playerBase + campaignBonus + regionalBonus + davosBonus - redScarepenalty - radicalismPenalty - blackPRPenalty + antiFraudBonus;
+Q.yeltsin_final = yeltsinBase + adminBonus + oligarchBonus;
+
+// Коалиции
+if (Q.coalition_with_lebed) {
+    Q.player_final += lebedBase * 0.7;
+    lebedBase = 0;
+}
+if (Q.coalition_with_yavlinsky) {
+    Q.player_final += yavlinskyBase * 0.55;
+    yavlinskyBase = 0;
+}
+if (Q.coalition_with_zhirinovsky) {
+    Q.player_final += zhirinovskyBase * 0.4;
+    zhirinovskyBase = 0;
+}
+
+// Нормализация до 100%
+var total = Q.player_final + Q.yeltsin_final + lebedBase + yavlinskyBase + zhirinovskyBase + othersBase;
+
+Q.player_result = (Q.player_final / total) * 100;
+Q.yeltsin_result = (Q.yeltsin_final / total) * 100;
+Q.lebed_result = (lebedBase / total) * 100;
+Q.yavlinsky_result = (yavlinskyBase / total) * 100;
+Q.zhirinovsky_result = (zhirinovskyBase / total) * 100;
+Q.others_result = (othersBase / total) * 100;
+
+// Округление
+Q.player_result = Math.round(Q.player_result * 100) / 100;
+Q.yeltsin_result = Math.round(Q.yeltsin_result * 100) / 100;
+Q.lebed_result = Math.round(Q.lebed_result * 100) / 100;
+Q.yavlinsky_result = Math.round(Q.yavlinsky_result * 100) / 100;
+Q.zhirinovsky_result = Math.round(Q.zhirinovsky_result * 100) / 100;
+Q.others_result = Math.round(Q.others_result * 100) / 100;
+
+// Абсолютные голоса
+var totalVoters = 108000000;
+var turnout = Q.expected_turnout / 100;
+var actualVoters = totalVoters * turnout;
+
+Q.player_votes_abs = Math.round(actualVoters * Q.player_result / 100);
+Q.yeltsin_votes_abs = Math.round(actualVoters * Q.yeltsin_result / 100);
+
+// Определение необходимости второго тура
+if (Q.player_result > 50) {
+    Q.first_round_winner = Q.candidate;
+    Q.second_round_needed = false;
+} else if (Q.yeltsin_result > 50) {
+    Q.first_round_winner = "Ельцин";
+    Q.second_round_needed = false;
+} else {
+    Q.second_round_needed = true;
+    Q.first_round_winner = "";
+}
+
+// Определение кто вышел во второй тур
+if (Q.player_result > Q.yeltsin_result) {
+    Q.first_place_name = Q.candidate;
+    Q.first_place_result = Q.player_result;
+    Q.second_place_name = "Ельцин";
+    Q.second_place_result = Q.yeltsin_result;
+} else {
+    Q.first_place_name = "Ельцин";
+    Q.first_place_result = Q.yeltsin_result;
+    Q.second_place_name = Q.candidate;
+    Q.second_place_result = Q.player_result;
+}
 !}
 
-The electoral system is essentially proportional, with the proportion of Reichstag seats roughly equal to the proportion of votes.
- 
-**Election results:**
+= Результаты первого тура
 
-# 1928: 30, 1930: 25, 1932: 22
-SPD: [+ spd_r +]
+<div style="text-align: center; font-size: 1.3em; margin: 20px 0;">
+<b>ВЫБОРЫ ПРЕЗИДЕНТА РОССИЙСКОЙ ФЕДЕРАЦИИ</b><br>
+16 июня 1996 года
+</div>
 
-# 1928: 15, 1930: 15, 1932: 
-Z + BVP: [+ z_r +]
+<div style="text-align: center; margin: 10px 0;">
+Явка: [+ expected_turnout +]%
+</div>
 
-# 1928: 10, 1930: 13
-KPD: [+ kpd_r +]
+<table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+<tr style="background: #f0f0f0;">
+<th style="padding: 8px; text-align: left; border: 1px solid #ccc;">Кандидат</th>
+<th style="padding: 8px; text-align: right; border: 1px solid #ccc;">%</th>
+<th style="padding: 8px; text-align: right; border: 1px solid #ccc;">Голосов</th>
+</tr>
+<tr style="background: [? if player_result > yeltsin_result: #ffe0e0 ?][? if player_result <= yeltsin_result: #fff ?];">
+<td style="padding: 8px; border: 1px solid #ccc;"><span style="color: #c00000; font-weight: bold;">[+ candidate +]</span></td>
+<td style="padding: 8px; text-align: right; border: 1px solid #ccc; font-weight: bold;">[+ player_result +]%</td>
+<td style="padding: 8px; text-align: right; border: 1px solid #ccc;">[+ player_votes_abs +]</td>
+</tr>
+<tr style="background: [? if yeltsin_result > player_result: #e0e0ff ?][? if yeltsin_result <= player_result: #fff ?];">
+<td style="padding: 8px; border: 1px solid #ccc;"><span style="color: #0066cc;">Б. Ельцин</span></td>
+<td style="padding: 8px; text-align: right; border: 1px solid #ccc; font-weight: bold;">[+ yeltsin_result +]%</td>
+<td style="padding: 8px; text-align: right; border: 1px solid #ccc;">[+ yeltsin_votes_abs +]</td>
+</tr>
+[? if lebed_result > 0:
+<tr>
+<td style="padding: 8px; border: 1px solid #ccc;"><span style="color: #336600;">А. Лебедь</span></td>
+<td style="padding: 8px; text-align: right; border: 1px solid #ccc;">[+ lebed_result +]%</td>
+<td style="padding: 8px; text-align: right; border: 1px solid #ccc;">—</td>
+</tr>
+?]
+[? if yavlinsky_result > 0:
+<tr>
+<td style="padding: 8px; border: 1px solid #ccc;"><span style="color: #009933;">Г. Явлинский</span></td>
+<td style="padding: 8px; text-align: right; border: 1px solid #ccc;">[+ yavlinsky_result +]%</td>
+<td style="padding: 8px; text-align: right; border: 1px solid #ccc;">—</td>
+</tr>
+?]
+[? if zhirinovsky_result > 0:
+<tr>
+<td style="padding: 8px; border: 1px solid #ccc;"><span style="color: #996600;">В. Жириновский</span></td>
+<td style="padding: 8px; text-align: right; border: 1px solid #ccc;">[+ zhirinovsky_result +]%</td>
+<td style="padding: 8px; text-align: right; border: 1px solid #ccc;">—</td>
+</tr>
+?]
+<tr>
+<td style="padding: 8px; border: 1px solid #ccc;">Другие кандидаты</td>
+<td style="padding: 8px; text-align: right; border: 1px solid #ccc;">[+ others_result +]%</td>
+<td style="padding: 8px; text-align: right; border: 1px solid #ccc;">—</td>
+</tr>
+</table>
 
-# 1928: 5, 1930: 4 (as DStP)
-DDP: [+ ddp_r +]
+[? if first_round_winner = candidate:
+<div style="text-align: center; color: #c00000; font-size: 1.5em; font-weight: bold; margin: 20px 0;">
+ПОБЕДА В ПЕРВОМ ТУРЕ!
+</div>
+?]
 
-# 1928: 9, 1930: 5
-DVP: [+ dvp_r +]
+[? if first_round_winner = "Ельцин":
+<div style="text-align: center; color: #0066cc; font-size: 1.3em; margin: 20px 0;">
+Ельцин побеждает в первом туре.
+</div>
+?]
 
-# 1928: 14, 1930: 7
-DNVP: [+ dnvp_r +]
+[? if second_round_needed:
+<div style="text-align: center; font-size: 1.2em; margin: 20px 0;">
+Ни один кандидат не набрал более 50% голосов.<br>
+<b>Назначен второй тур: 3 июля 1996 года</b><br><br>
+Во второй тур выходят:<br>
+<b>[+ first_place_name +]</b> ([+ first_place_result +]%)<br>
+<b>[+ second_place_name +]</b> ([+ second_place_result +]%)
+</div>
+?]
 
-# 1928: 3, 1930: 18
-NSDAP: [+ nsdap_r +]
+- @continue_after_first_round: Продолжить
 
-# 1928: 9, 1930: 10
-Other: [+ other_r +]
+@continue_after_first_round
+go-to: game_over.victory_first if first_round_winner = candidate; game_over.defeat if first_round_winner = "Ельцин"; between_rounds if second_round_needed
 
-**Potential coalitions:**
+@between_rounds
+new-page: true
+on-arrival: {!
+// Период между турами
+Q.game_phase = "between_rounds";
+Q.turn_length = 1;
+Q.between_rounds_days = 17;
+!}
 
-Weimar Coalition (SPD + Z + DDP): [+ weimar_coalition +]
+= Между первым и вторым туром
 
-Grand Coalition (SPD + Z + BVP + DDP + DVP): [+ grand_coalition +]
+До второго тура осталось 17 дней. Это решающий период.
 
-Bourgeois Coalition (Z + BVP + DDP + DVP + Others): [+ bourgeois_coalition +]
+Все силы должны быть мобилизованы. Ключевой вопрос — кого поддержат выбывшие кандидаты?
 
-Right-wing Coalition (Z + BVP + DVP + Others + DNVP): [+ right_coalition +]
+[? if not coalition_with_lebed and lebed_result > 5:
+<span style="color: #336600;">Александр Лебедь</span> пока не объявил о поддержке. За ним — почти 15% голосов.
+?]
 
+[? if not coalition_with_yavlinsky and yavlinsky_result > 3:
+<span style="color: #009933;">Григорий Явлинский</span> держит паузу. Его электорат раздумывает.
+?]
+
+- @second_round_campaign: Начать финальную кампанию
+
+@second_round_campaign
+on-arrival: {!
+// Симуляция второго тура
+
+// Базовые результаты из первого тура
+var playerSecond = Q.player_result;
+var yeltsinSecond = Q.yeltsin_result;
+
+// Перетекание голосов
+// Лебедь
+if (Q.coalition_with_lebed) {
+    playerSecond += Q.lebed_result * 0.75;
+} else {
+    // Исторически Лебедь поддержал Ельцина
+    yeltsinSecond += Q.lebed_result * 0.6;
+    playerSecond += Q.lebed_result * 0.15;
+}
+
+// Явлинский
+if (Q.coalition_with_yavlinsky) {
+    playerSecond += Q.yavlinsky_result * 0.6;
+} else {
+    yeltsinSecond += Q.yavlinsky_result * 0.35;
+    playerSecond += Q.yavlinsky_result * 0.2;
+}
+
+// Жириновский
+if (Q.coalition_with_zhirinovsky) {
+    playerSecond += Q.zhirinovsky_result * 0.5;
+} else {
+    yeltsinSecond += Q.zhirinovsky_result * 0.2;
+    playerSecond += Q.zhirinovsky_result * 0.3;
+}
+
+// Другие кандидаты распределяются примерно поровну
+playerSecond += Q.others_result * 0.4;
+yeltsinSecond += Q.others_result * 0.4;
+
+// Дополнительный административный ресурс во втором туре
+yeltsinSecond += 3;
+
+// Нормализация
+var total = playerSecond + yeltsinSecond;
+Q.player_second_result = (playerSecond / total) * 100;
+Q.yeltsin_second_result = (yeltsinSecond / total) * 100;
+
+Q.player_second_result = Math.round(Q.player_second_result * 100) / 100;
+Q.yeltsin_second_result = Math.round(Q.yeltsin_second_result * 100) / 100;
+
+// Абсолютные голоса
+var totalVoters = 108000000;
+var turnout = (Q.expected_turnout + 3) / 100; // Явка обычно выше во втором туре
+var actualVoters = totalVoters * turnout;
+
+Q.player_second_abs = Math.round(actualVoters * Q.player_second_result / 100);
+Q.yeltsin_second_abs = Math.round(actualVoters * Q.yeltsin_second_result / 100);
+
+// Определение победителя
+if (Q.player_second_result > Q.yeltsin_second_result) {
+    Q.second_round_winner = Q.candidate;
+} else {
+    Q.second_round_winner = "Ельцин";
+}
+
+Q.second_round_completed = 1;
+!}
+go-to: second_round_results
+
+@second_round_results
+new-page: true
+
+= Результаты второго тура
+
+<div style="text-align: center; font-size: 1.3em; margin: 20px 0;">
+<b>ВТОРОЙ ТУР ВЫБОРОВ ПРЕЗИДЕНТА РФ</b><br>
+3 июля 1996 года
+</div>
+
+<table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+<tr style="background: #f0f0f0;">
+<th style="padding: 8px; text-align: left; border: 1px solid #ccc;">Кандидат</th>
+<th style="padding: 8px; text-align: right; border: 1px solid #ccc;">%</th>
+<th style="padding: 8px; text-align: right; border: 1px solid #ccc;">Голосов</th>
+</tr>
+<tr style="background: [? if second_round_winner = candidate: #ffe0e0 ?][? if second_round_winner != candidate: #fff ?];">
+<td style="padding: 8px; border: 1px solid #ccc;"><span style="color: #c00000; font-weight: bold;">[+ candidate +]</span></td>
+<td style="padding: 8px; text-align: right; border: 1px solid #ccc; font-weight: bold;">[+ player_second_result +]%</td>
+<td style="padding: 8px; text-align: right; border: 1px solid #ccc;">[+ player_second_abs +]</td>
+</tr>
+<tr style="background: [? if second_round_winner = "Ельцин": #e0e0ff ?][? if second_round_winner != "Ельцин": #fff ?];">
+<td style="padding: 8px; border: 1px solid #ccc;"><span style="color: #0066cc;">Б. Ельцин</span></td>
+<td style="padding: 8px; text-align: right; border: 1px solid #ccc; font-weight: bold;">[+ yeltsin_second_result +]%</td>
+<td style="padding: 8px; text-align: right; border: 1px solid #ccc;">[+ yeltsin_second_abs +]</td>
+</tr>
+</table>
+
+[? if second_round_winner = candidate:
+<div style="text-align: center; color: #c00000; font-size: 1.8em; font-weight: bold; margin: 20px 0;">
+🎉 ПОБЕДА! 🎉
+</div>
+<div style="text-align: center; font-size: 1.2em;">
+[+ candidate +] избран Президентом Российской Федерации!
+</div>
+?]
+
+[? if second_round_winner = "Ельцин":
+<div style="text-align: center; color: #666; font-size: 1.3em; margin: 20px 0;">
+Ельцин переизбран президентом.
+</div>
+?]
+
+- @final_screen: Завершить
+
+@final_screen
+go-to: game_over.victory_second if second_round_winner = candidate; game_over.defeat if second_round_winner = "Ельцин"

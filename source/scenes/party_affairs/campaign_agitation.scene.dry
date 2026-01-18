@@ -1,0 +1,59 @@
+title: Агитация
+tags: campaign_actions
+new-page: true
+card-image: img/agitation.jpg
+
+= Агитационная кампания
+
+Выберите метод агитации:
+
+- @media_campaign: Работа со СМИ
+- @leaflets: Распространение листовок
+- @rallies: Массовые митинги
+- @main: Назад
+
+@media_campaign
+on-arrival: {!
+Q.actions_this_turn += 1;
+Q.campaign_funds -= 10;
+Q.media_penetration += 3;
+Q.player_support += 1;
+!}
+
+= Работа со СМИ
+
+Вы провели серию выступлений на телеканалах и радиостанциях.
+
+Рейтинг вырос. Медийное присутствие усилилось.
+
+- @main: Продолжить
+
+@leaflets
+on-arrival: {!
+Q.actions_this_turn += 1;
+Q.campaign_funds -= 5;
+Q.player_support += 0.5;
+!}
+
+= Распространение листовок
+
+Активисты партии распространяют листовки с вашей программой.
+
+Поддержка среди пенсионеров и сельских жителей выросла.
+
+- @main: Продолжить
+
+@rallies
+on-arrival: {!
+Q.actions_this_turn += 1;
+Q.campaign_funds -= 10;
+Q.player_support += 1;
+!}
+
+= Массовые митинги
+
+Вы провели серию массовых митингов в крупных городах.
+
+Рейтинг вырос! База мобилизована!
+
+- @main: Продолжить

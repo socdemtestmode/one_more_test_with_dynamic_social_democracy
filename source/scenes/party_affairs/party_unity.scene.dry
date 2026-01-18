@@ -1,0 +1,27 @@
+title: Единство левых сил
+tags: party_affairs
+new-page: true
+view-if: negotiations_timer <= 0
+card-image: img/unity.jpg
+on-arrival: negotiations_timer = 2
+
+= Переговоры с союзниками
+
+Единство левых и народно-патриотических сил - ключ к победе.
+
+- @negotiate_allies: Провести переговоры
+- @main: Отложить
+
+@negotiate_allies
+on-arrival: {!
+Q.actions_this_turn += 1;
+Q.zyuganov_relation += 5;
+Q.anpilov_relation += 3;
+Q.player_support += 0.5;
+!}
+
+= Результаты переговоров
+
+Переговоры прошли успешно. Отношения с союзниками улучшились.
+
+- @main: Продолжить

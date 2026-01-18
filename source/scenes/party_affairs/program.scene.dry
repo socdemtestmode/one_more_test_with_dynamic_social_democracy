@@ -1,0 +1,100 @@
+title: Программа кандидата
+tags: party_affairs
+new-page: true
+view-if: program_adopted = 0
+card-image: img/program.jpg
+
+= Принятие предвыборной программы
+
+Необходимо сформулировать и принять предвыборную программу — документ, определяющий ваши цели и обещания избирателям.
+
+Какую стратегию выбрать?
+
+- @program_radical: Радикальная программа — национализация, плановая экономика
+- @program_moderate: Умеренная программа — смешанная экономика, социальные гарантии
+- @program_centrist: Центристская программа — стабильность и постепенные реформы
+
+@program_radical
+on-arrival: {!
+Q.actions_this_turn += 1;
+Q.program_adopted = 1;
+Q.program_type = "radical";
+Q.radicalism += 2;
+Q.red_scare += 10;
+Q.communists_preference += 10;
+Q.workers_preference += 5;
+Q.pensioners_preference += 3;
+Q.new_russians_preference -= 5;
+Q.intelligentsia_preference -= 3;
+Q.west_relation -= 10;
+!}
+
+= Радикальная программа
+
+Вы приняли программу, предусматривающую:
+- Национализацию стратегических отраслей
+- Восстановление государственного планирования
+- Пересмотр итогов приватизации
+- Восстановление СССР в форме союзного государства
+
+<span style="color: green;">Поддержка среди коммунистов и рабочих выросла!</span>
+<span style="color: red;">«Красная угроза» в восприятии элит возросла.</span>
+<span style="color: red;">Отношения с Западом ухудшились.</span>
+
+- @main: Продолжить
+
+@program_moderate
+on-arrival: {!
+Q.actions_this_turn += 1;
+Q.program_adopted = 1;
+Q.program_type = "moderate";
+Q.radicalism -= 1;
+Q.red_scare -= 5;
+Q.workers_preference += 3;
+Q.budgetniki_preference += 5;
+Q.pensioners_preference += 5;
+Q.intelligentsia_preference += 2;
+Q.communists_preference -= 3;
+!}
+
+= Умеренная программа
+
+Вы приняли программу, предусматривающую:
+- Смешанную экономику с сильным госсектором
+- Социальные гарантии и защиту трудящихся
+- Постепенный пересмотр несправедливой приватизации
+- Интеграцию в рамках СНГ
+
+<span style="color: green;">Широкая поддержка среди различных групп населения!</span>
+<span style="color: orange;">Некоторые убеждённые коммунисты разочарованы умеренностью.</span>
+
+- @main: Продолжить
+
+@program_centrist
+on-arrival: {!
+Q.actions_this_turn += 1;
+Q.program_adopted = 1;
+Q.program_type = "centrist";
+Q.radicalism -= 2;
+Q.red_scare -= 10;
+Q.intelligentsia_preference += 5;
+Q.traders_preference += 3;
+Q.new_russians_preference += 2;
+Q.communists_preference -= 8;
+Q.workers_preference -= 2;
+Q.west_relation += 5;
+!}
+
+= Центристская программа
+
+Вы приняли программу, предусматривающую:
+- Стабильность и предсказуемость
+- Корректировку реформ без резких изменений
+- Борьбу с коррупцией
+- Сотрудничество со всеми конструктивными силами
+
+<span style="color: green;">«Красная угроза» значительно снизилась!</span>
+<span style="color: green;">Поддержка среди интеллигенции выросла.</span>
+<span style="color: red;">Коммунистическая база разочарована!</span>
+
+- @main: Продолжить

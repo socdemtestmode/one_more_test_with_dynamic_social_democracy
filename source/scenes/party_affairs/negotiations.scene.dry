@@ -7,12 +7,6 @@ view-if: negotiation_timer <= 0 and advisor_zhirinovsky = 1
 on-arrival: negotiation_timer = 5
 go-to: zhirinovsky_negotiations
 
-@negotiate_lebed_main
-title: Переговоры с Александром Лебедем
-view-if: negotiation_timer <= 0 and advisor_lebed = 1
-on-arrival: negotiation_timer = 6
-go-to: lebed_negotiations
-
 @zhirinovsky_negotiations
 new-page: true
 
@@ -20,71 +14,16 @@ new-page: true
 
 Лидер ЛДПР принимает вас в своем кабинете.
 
-- @zhirinovsky_pact
-- @zhirinovsky_money
+- @zhirinovsky_pact: Предложить "Пакт о честных выборах".
 
 @zhirinovsky_pact
-title: Предложить пакт о честных выборах.
 on-arrival: {!
 if (Q.moderation > 40) {
-    Q.zhirinovsky_relation += 15;
-    Q.administrative_resource += 5;
-} else {
-    Q.zhirinovsky_relation += 5;
+    Q.zhirinovsky_relation += 20;
+    Q.administrative_resource += 10;
 }
 !}
 
-«Честные выборы? В этой стране?» — Владимир Вольфович хохочет.
+«Давайте! Будем бить фальсификаторов по рукам!»
 
-- @main: Вернуться в штаб
-
-@zhirinovsky_money
-title: Попытаться перекупить лояльность (10 Финансов).
-view-if: money >= 10
-on-arrival: {!
-Q.money -= 10;
-Q.zhirinovsky_relation += 30;
-Q.fear_of_communism -= 2;
-!}
-
-Жириновский мгновенно меняет тон. «Ну вот, это разговор государственного мужа!»
-
-- @main: Вернуться в штаб
-
-@lebed_negotiations
-new-page: true
-
-= Генерал Александр Иванович Лебедь
-
-Генерал Лебедь встречает вас в полумраке.
-
-- @lebed_minister
-- @lebed_order
-
-@lebed_minister
-title: Предложить пост Министра Обороны в будущем правительстве.
-on-arrival: {!
-if (Q.military_relation > 50) {
-    Q.lebed_relation += 20;
-    Q.military_relation += 15;
-    Q.resources += 5;
-} else {
-    Q.lebed_relation += 10;
-}
-!}
-
-Лебедь усмехается. «Министр? Слова дешево стоят. Но армия меня услышит».
-
-- @main: Вернуться в штаб
-
-@lebed_order
-title: Предложить совместную программу "Порядок и Справедливость".
-on-arrival: {!
-Q.lebed_relation += 15;
-Q.moderation += 10;
-Q.radicalism -= 5;
-!}
-
-«Порядок — это то, что нужно России», — соглашается генерал.
-
-- @main: Вернуться в штаб
+- @main: Вернуться

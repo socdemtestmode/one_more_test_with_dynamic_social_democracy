@@ -2,8 +2,6 @@ title: Кампания 1996
 is-hand: true
 on-arrival: {!
 Q.turn += 1;
-
-// --- КАЛЕНДАРЬ ---
 if (Q.time_scale == 'week') {
     Q.day += 7;
     if (Q.day > 30) { Q.day -= 30; Q.month += 1; }
@@ -12,12 +10,9 @@ if (Q.time_scale == 'week') {
     Q.day += 1;
     if (Q.day > 30) { Q.day = 1; Q.month += 1; }
 }
-
-if (Q.year == 1996 && Q.month == 5 && Q.day >= 20 && Q.time_scale == 'week') {
+if (Q.year == 1996 && Q.month == 5 && Q.day >= 15 && Q.time_scale == 'week') {
     Q.time_scale = 'day';
 }
-
-// --- УПРАВЛЕНИЕ ТАЙМЕРАМИ ---
 for (var t of Q.timers) {
     if (Q[t + '_timer'] > 0) Q[t + '_timer'] -= 1;
 }
@@ -28,19 +23,18 @@ for (var t of Q.timers) {
 = {! Q.day !} {! Q.month == 1 ? 'января' : Q.month == 2 ? 'февраля' : Q.month == 3 ? 'марта' : Q.month == 4 ? 'апреля' : Q.month == 5 ? 'мая' : Q.month == 6 ? 'июня' : 'июля' !} {! Q.year !} г.
 
 [? if turn = 1 :
-**Предвыборный штаб.** Страна бурлит. Экономический хаос, чеченская рана, пустые полки в памяти и пустые кошельки в реальности.
-У Ельцина — 8%. У нас — шанс всей жизни. Но Кремль не отдаст власть просто так. Начинается битва.
+**Россия, начало 1996-го.** Вы стоите во главе НПСР. У Ельцина — 8%. У нас — шанс всей жизни.
 ?]
 
 {!</div>!}
 
 - #party_affairs
 - #negotiations
-- #events
 - #regional_visits
-- @status: Статус и Опросы
+- #events
+- @status_view: Дашборд кампании
 
-@status
-title: Статус
+@status_view
+title: Статус и Опросы
 is-special: true
 go-to: status

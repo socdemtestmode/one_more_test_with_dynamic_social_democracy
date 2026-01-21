@@ -1,37 +1,33 @@
 title: Региональные визиты
 tags: regional_visits
 
-@regional_visit_menu
-title: Поездка в регионы
+@regional_visit_hub
+title: Работа в регионах
 view-if: regional_visit_timer <= 0
 on-arrival: regional_visit_timer = 4
 
-Где кандидат должен выступить?
+Где кандидат должен появиться?
 
-- @visit_kuzbass: Поездка в Кемерово (Кузбасс)
-- @visit_nizhny: Поездка в Нижний Новгород
+- @visit_kuzbass: Поездка в Кемерово.
+- @visit_nizhny: Поездка в Нижний.
 
 @visit_kuzbass
 on-arrival: {!
 Q.money -= 2;
-Q.region_data.Kemerovskaya.zyug += 5.0;
-Q.support_matrix.workers.zyug += 2.0;
+Q.region_data.Kemerovskaya.zyug += 8.0;
+Q.workers_loyalty += 15.0;
 !}
 
-**Кемерово.** Шахтеры требуют выплаты зарплат. Ваши обещания «вернуть власть народу» встречаются громом аплодисментов.
+Шахтеры требуют выплаты зарплат.
 
-- @main: Вернуться в штаб
+- @main: Вернуться
 
 @visit_nizhny
 on-arrival: {!
 Q.money -= 3;
-if (Q.moderation > 60) {
-    Q.region_data.Nizhegorodskaya.zyug += 3.5;
-} else {
-    Q.fear_of_communism += 3;
-}
+Q.region_data.Nizhegorodskaya.zyug += 5.0;
 !}
 
-**Нижний.** Оплот реформаторов. Если мы будем говорить умеренно, удастся привлечь часть бюджетников.
+Вотчина Немцова встретила нас прохладно.
 
-- @main: Вернуться в штаб
+- @main: Вернуться

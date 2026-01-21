@@ -5,70 +5,29 @@ on-arrival: {!
 var electionDate = new Date(1996, 5, 16);
 var currentDate = new Date(Q.year, Q.month - 1, Q.day);
 Q.days_to_election = Math.floor((electionDate - currentDate) / (1000 * 60 * 60 * 24));
-
 Q.yelt_disp = Q.yeltsin_support.toFixed(1);
 Q.zyug_disp = Q.zyuganov_support.toFixed(1);
-Q.lebe_disp = Q.lebed_support.toFixed(1);
-Q.yavl_disp = Q.yavlinsky_support.toFixed(1);
-Q.zhir_disp = Q.zhirinovsky_support.toFixed(1);
 !}
 
 = Дашборд кампании-96
 
 **Дата:** {! Q.day !} {! Q.month == 1 ? 'января' : Q.month == 2 ? 'февраля' : Q.month == 3 ? 'марта' : Q.month == 4 ? 'апреля' : Q.month == 5 ? 'мая' : Q.month == 6 ? 'июня' : 'июля' !} {! Q.year !} г.
-**До первого тура:** [? if days_to_election > 0 : {! Q.days_to_election !} дн. ?][? if days_to_election <= 0 : ИДЕТ ГОЛОСОВАНИЕ ?]
+**До первого тура:** {! Q.days_to_election !} дн.
 
-**Ваш кандидат:** [? if player_candidate = 'zyuganov' : Геннадий Зюганов ?][? if player_candidate = 'anpilov' : Виктор Анпилов ?][? if player_candidate = 'kharitonov' : Николай Харитонов ?][? if player_candidate = 'ryzhkov' : Николай Рыжков ?]
+**Ельцин:** [+ yelt_disp +]%
+**Зюганов:** [+ zyug_disp +]%
 
-= Социологический опрос (Федеральный)
+- @polls_map: Карта регионов
+- @main: Вернуться
 
-| Кандидат | Рейтинг | Тренд |
-| :--- | :--- | :--- |
-| **Ельцин** | <span style="color: blue;">[+ yelt_disp +]%</span> | [? if month >= 2 : ↑ ?] |
-| **Зюганов** | <span style="color: red;">[+ zyug_disp +]%</span> | [? if fear_of_communism > 30 : ↓ ?] |
-| **Лебедь** | [+ lebe_disp +]% | ↑ |
-| **Явлинский** | [+ yavl_disp +]% | — |
-| **Жириновский** | [+ zhir_disp +]% | ↓ |
-
-= Состояние общества
-
-*   **Радикализм:** [+ radicalism +] / 100
-*   **Страх перед диктатурой:** [+ fear_of_communism +] / 100
-*   **Отношения с Армией:** [+ military_relation +] / 100
-*   **Отношения с Церковью:** [+ roc_relation +] / 100
-*   **Финансы штаба:** [+ money +] млрд.
-
-- @polls: Срез по регионам
-- @demographics: Настроения классов
-- @main_return: Вернуться
-
-@polls
+@polls_map
 new-page: true
 
-= Срез по регионам (Текущая поддержка)
+= Срез по регионам (Зюганов / Ельцин)
 
-| Субъект РФ | Зюганов | Ельцин | Лебедь |
-| :--- | :--- | :--- | :--- |
-| **Москва** | {! Q.region_data.Moscow.zyug.toFixed(1) !}% | {! Q.region_data.Moscow.yelt.toFixed(1) !}% | {! Q.region_data.Moscow.lebe.toFixed(1) !}% |
-| **Свердловская обл.** | {! Q.region_data.Sverdlovskaya.zyug.toFixed(1) !}% | {! Q.region_data.Sverdlovskaya.yelt.toFixed(1) !}% | {! Q.region_data.Sverdlovskaya.lebe.toFixed(1) !}% |
-| **Кемеровская обл.** | {! Q.region_data.Kemerovskaya.zyug.toFixed(1) !}% | {! Q.region_data.Kemerovskaya.yelt.toFixed(1) !}% | {! Q.region_data.Kemerovskaya.lebe.toFixed(1) !}% |
-| **Дагестан** | {! Q.region_data.Dagestan.zyug.toFixed(1) !}% | {! Q.region_data.Dagestan.yelt.toFixed(1) !}% | {! Q.region_data.Dagestan.lebe.toFixed(1) !}% |
+| Регион | Поддержка |
+| :--- | :--- |
+| **Москва** | {! Q.region_data.Moscow.zyug.toFixed(1) !}% / {! Q.region_data.Moscow.yelt.toFixed(1) !}% |
+| **Кузбасс** | {! Q.region_data.Kemerovskaya.zyug.toFixed(1) !}% / {! Q.region_data.Kemerovskaya.yelt.toFixed(1) !}% |
 
 - @status: Назад
-
-@demographics
-new-page: true
-
-= Настроения социальных групп (Поддержка Зюганова)
-
-*   **Рабочие:** {! Q.support_matrix.workers.zyug.toFixed(1) !}%
-*   **Бюджетники:** {! Q.support_matrix.budgetniki.zyug.toFixed(1) !}%
-*   **Пенсионеры:** {! Q.support_matrix.elderly.zyug.toFixed(1) !}%
-*   **Интеллигенция:** {! Q.support_matrix.intelligentsia.zyug.toFixed(1) !}%
-*   **Селяне:** {! Q.support_matrix.rural.zyug.toFixed(1) !}%
-*   **Олигархия:** {! Q.support_matrix.oligarchy.zyug.toFixed(1) !}%
-
-- @status: Назад
-
-@main_return
-go-to: main

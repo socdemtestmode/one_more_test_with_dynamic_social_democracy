@@ -33,167 +33,74 @@ Q.day = 22;
 Q.turn = 0;
 Q.time_scale = 'week';
 
-// --- ОСНОВНЫЕ ПОКАЗАТЕЛИ ИГРОКА ---
-Q.radicalism = 25;
-Q.moderation = 40;
-Q.fear_of_communism = 20;
-Q.media_penetration = 0.05;
-Q.administrative_resource = 5;
-Q.government_administrative_resource = 60;
+// --- ПАРАМЕТРЫ ИГРОКА ---
+Q.radicalism = 30;
+Q.moderation = 30;
+Q.fear_of_communism = 25;
 Q.tolerance = 40;
+Q.media_penetration = 0.05;
 Q.turnout = 60;
-Q.resources = 15;
-Q.money = 20;
+Q.resources = 20;
+Q.money = 15;
+Q.administrative_resource = 0;
+Q.yeltsin_admin_resource = 65;
+Q.chaos = 40;
+
+// --- ПОДДЕРЖКА КАНДИДАТОВ ---
+Q.yeltsin_support = 8.0;
+Q.zyuganov_support = 21.0;
+Q.zhirinovsky_support = 11.5;
+Q.lebed_support = 9.8;
+Q.yavlinsky_support = 10.5;
+Q.fyodorov_support = 6.8;
+Q.chernomyrdin_support = 4.2;
+Q.gaidar_support = 3.5;
+Q.gorbachev_support = 0.6;
+Q.others_support = 14.1;
+
+// --- ДЕМОГРАФИЯ (Лояльность Зюганову) ---
+Q.workers_loyalty = 60;
+Q.miners_loyalty = 70;
+Q.teachers_loyalty = 40;
+Q.doctors_loyalty = 45;
+Q.military_officers_loyalty = 55;
+Q.soldiers_loyalty = 40;
+Q.small_business_loyalty = 20;
+Q.big_capital_loyalty = 2;
+Q.intelligentsia_liberal_loyalty = 10;
+Q.intelligentsia_patriotic_loyalty = 75;
+Q.rural_peasants_loyalty = 80;
+Q.pensioners_urban_loyalty = 85;
+Q.pensioners_rural_loyalty = 90;
+Q.unemployed_loyalty = 65;
+Q.students_loyalty = 25;
 
 // --- ГРУППЫ ВЛИЯНИЯ ---
-Q.roc_relation = 30;
-Q.oligarchs_relation = 5;
-Q.patriots_relation = 85;
-Q.military_relation = 45;
-Q.west_relation = 10;
-Q.cis_relation = 55;
-Q.regional_elites_relation = 35;
-
-// --- КАНДИДАТЫ ---
-Q.yeltsin_support = 8.0;
-Q.zyuganov_support = 22.0;
-Q.zhirinovsky_support = 12.0;
-Q.lebed_support = 10.0;
-Q.yavlinsky_support = 11.0;
-Q.fyodorov_support = 7.0;
-Q.chernomyrdin_support = 4.0;
-Q.gaidar_support = 3.0;
-Q.gorbachev_support = 0.6;
-Q.others_support = 2.4;
-
-// --- ДЕМОГРАФИЧЕСКАЯ МОДЕЛЬ ---
-Q.classes = ['workers', 'small_traders', 'budgetniki', 'intelligentsia', 'military', 'oligarchy', 'rural', 'unemployed', 'youth', 'elderly'];
-Q.class_proportions = {
-    workers: 30, small_traders: 8, budgetniki: 22, intelligentsia: 10, military: 5,
-    oligarchy: 0.5, rural: 18, unemployed: 6.5, youth: 15, elderly: 25
-};
-
-Q.support_matrix = {
-    workers: { yelt: 5, zyug: 45, lebe: 15, zhir: 15, yavl: 5, others: 15 },
-    small_traders: { yelt: 15, zyug: 5, lebe: 10, zhir: 25, yavl: 30, others: 15 },
-    budgetniki: { yelt: 8, zyug: 35, lebe: 10, zhir: 10, yavl: 15, others: 22 },
-    intelligentsia: { yelt: 20, zyug: 5, lebe: 5, zhir: 2, yavl: 45, others: 23 },
-    military: { yelt: 4, zyug: 25, lebe: 40, zhir: 15, yavl: 5, others: 11 },
-    oligarchy: { yelt: 80, zyug: 0, lebe: 5, zhir: 2, yavl: 10, others: 3 },
-    rural: { yelt: 6, zyug: 55, lebe: 8, zhir: 12, yavl: 2, others: 17 },
-    unemployed: { yelt: 2, zyug: 40, lebe: 20, zhir: 25, yavl: 2, others: 11 },
-    youth: { yelt: 15, zyug: 10, lebe: 15, zhir: 20, yavl: 25, others: 15 },
-    elderly: { yelt: 3, zyug: 65, lebe: 5, zhir: 10, yavl: 5, others: 12 }
-};
+Q.rel_roc = 30;
+Q.rel_fsb_mvd = 40;
+Q.rel_regional_barons = 35;
+Q.rel_oligarchs_media = 5;
+Q.rel_imf_west = 10;
+Q.rel_patriot_unions = 80;
+Q.rel_cis_leaders = 50;
 
 // --- РЕГИОНАЛЬНЫЕ ДАННЫЕ (89 Субъектов - Цели 1 тура) ---
 Q.region_targets = {
-    'Adygeya': {yelt: 20.02, zyug: 51.5, lebe: 13.99, yavl: 5.29, zhir: 5.07},
-    'Altay_Rep': {yelt: 28.48, zyug: 43.61, lebe: 13.03, yavl: 3.46, zhir: 4.83},
-    'Bashkortostan': {yelt: 34.19, zyug: 41.86, lebe: 8.93, yavl: 6.78, zhir: 2.87},
-    'Buryatiya': {yelt: 30.59, zyug: 40.22, lebe: 10.57, yavl: 7.59, zhir: 4.84},
-    'Dagestan': {yelt: 28.52, zyug: 63.23, lebe: 1.34, yavl: 1.7, zhir: 1.12},
-    'Ingushetiya': {yelt: 46.26, zyug: 24.49, lebe: 2.24, yavl: 15.19, zhir: 1.74},
-    'Kabardino_Balkariya': {yelt: 43.75, zyug: 37.25, lebe: 9.8, yavl: 3.36, zhir: 1.43},
-    'Kalmykiya': {yelt: 58.49, zyug: 25.72, lebe: 5.42, yavl: 2.5, zhir: 3.57},
-    'Karachaevo_Cherkessiya': {yelt: 25.82, zyug: 55.42, lebe: 8.77, yavl: 3.07, zhir: 2.49},
-    'Kareliya': {yelt: 42.36, zyug: 16.99, lebe: 12.04, yavl: 14.27, zhir: 8.48},
-    'Komi': {yelt: 40.48, zyug: 16.32, lebe: 18.17, yavl: 9.45, zhir: 9.82},
-    'Mariy_El': {yelt: 24.35, zyug: 43.44, lebe: 10.97, yavl: 7.37, zhir: 7.43},
-    'Mordoviya': {yelt: 24.14, zyug: 49.71, lebe: 10.64, yavl: 3, zhir: 6.86},
-    'Sakha': {yelt: 51.85, zyug: 20.55, lebe: 12.61, yavl: 4.68, zhir: 3.65},
-    'Severnaya_Osetiya': {yelt: 19.28, zyug: 62.33, lebe: 9.6, yavl: 1.8, zhir: 3.23},
-    'Tatarstan': {yelt: 38.34, zyug: 38.1, lebe: 7.38, yavl: 6.9, zhir: 2.58},
-    'Tyva': {yelt: 59.93, zyug: 21.17, lebe: 4.54, yavl: 4.22, zhir: 3.02},
-    'Udmurtiya': {yelt: 36.81, zyug: 30.47, lebe: 11.52, yavl: 9.23, zhir: 5.99},
-    'Chechnya': {yelt: 65.11, zyug: 16.32, lebe: 2.54, yavl: 4.25, zhir: 1.4},
-    'Chuvashiya': {yelt: 20.55, zyug: 53.93, lebe: 7.65, yavl: 4.57, zhir: 4.25},
-    'Altayskiy_Kray': {yelt: 21.8, zyug: 41.97, lebe: 19.39, yavl: 5.05, zhir: 7.38},
-    'Krasnodarskiy_Kray': {yelt: 26.26, zyug: 39.42, lebe: 17.49, yavl: 6.36, zhir: 6.38},
-    'Khakasiya': {yelt: 29.24, zyug: 35.48, lebe: 12.53, yavl: 7.25, zhir: 9.69},
-    'Krasnoyarskiy_Kray': {yelt: 34.8, zyug: 28.52, lebe: 13.87, yavl: 10.01, zhir: 7.58},
-    'Primorskiy_Kray': {yelt: 29.55, zyug: 24.56, lebe: 19.47, yavl: 7.16, zhir: 12.73},
-    'Stavropolskiy_Kray': {yelt: 22, zyug: 43.93, lebe: 19.34, yavl: 4.1, zhir: 6.19},
-    'Khabarovskiy_Kray': {yelt: 39.01, zyug: 22.92, lebe: 12.24, yavl: 10.42, zhir: 8.65},
-    'Amurskaya': {yelt: 26.6, zyug: 41.85, lebe: 11.84, yavl: 6.06, zhir: 7.91},
-    'Arkhangelskaya': {yelt: 40.85, zyug: 18.32, lebe: 17.28, yavl: 10.79, zhir: 6.56},
-    'Astrakhanskaya': {yelt: 29.52, zyug: 36.54, lebe: 16.14, yavl: 6.04, zhir: 7.16},
-    'Belgorodskaya': {yelt: 22.87, zyug: 46.35, lebe: 16.95, yavl: 5.75, zhir: 4.31},
-    'Bryanskaya': {yelt: 26.23, zyug: 49.58, lebe: 11.6, yavl: 3.48, zhir: 5.09},
-    'Vladimirskaya': {yelt: 30.89, zyug: 29.87, lebe: 19.91, yavl: 7.39, zhir: 6.71},
-    'Volgogradskaya': {yelt: 28.59, zyug: 40.04, lebe: 13.65, yavl: 6.43, zhir: 6.55},
-    'Vologodskaya': {yelt: 45.17, zyug: 18.66, lebe: 17.63, yavl: 5.92, zhir: 7.12},
-    'Voronezhskaya': {yelt: 22.65, zyug: 45.48, lebe: 17.46, yavl: 4.43, zhir: 5.84},
-    'Ivanovskaya': {yelt: 29.6, zyug: 23.22, lebe: 29.59, yavl: 6.08, zhir: 7},
-    'Irkutskaya': {yelt: 32.2, zyug: 27.57, lebe: 16.29, yavl: 8.86, zhir: 8.48},
-    'Kaliningradskaya': {yelt: 33.46, zyug: 23.08, lebe: 19.31, yavl: 12.85, zhir: 7.2},
-    'Kaluzhskaya': {yelt: 31.43, zyug: 35.42, lebe: 15.6, yavl: 7.46, zhir: 5.11},
-    'Kamchatskaya': {yelt: 34.29, zyug: 18.69, lebe: 14.06, yavl: 17.28, zhir: 9.96},
-    'Kemerovskaya': {yelt: 23.02, zyug: 38.88, lebe: 15.29, yavl: 5.34, zhir: 11.63},
-    'Kirovskaya': {yelt: 31.24, zyug: 28.96, lebe: 13.7, yavl: 12.15, zhir: 8.62},
-    'Kostromskaya': {yelt: 28.02, zyug: 28.57, lebe: 23.26, yavl: 7.77, zhir: 7.62},
-    'Kurganskaya': {yelt: 29.25, zyug: 37.53, lebe: 11.14, yavl: 6.61, zhir: 9.99},
-    'Kurskaya': {yelt: 24.06, zyug: 51.13, lebe: 11.06, yavl: 5.38, zhir: 3.89},
-    'Leningradskaya': {yelt: 37.46, zyug: 23.17, lebe: 18.12, yavl: 11.6, zhir: 4.29},
-    'Lipetskaya': {yelt: 25.08, zyug: 46.37, lebe: 13.16, yavl: 5.56, zhir: 5.32},
-    'Magadanskaya': {yelt: 36.93, zyug: 16.04, lebe: 23.86, yavl: 6.15, zhir: 10.91},
-    'Moskovskaya': {yelt: 44.15, zyug: 24.05, lebe: 15.07, yavl: 7.87, zhir: 3},
-    'Murmanskaya': {yelt: 40.62, zyug: 12.09, lebe: 25.43, yavl: 9.68, zhir: 6.98},
-    'Nizhegorodskaya': {yelt: 34.83, zyug: 32.53, lebe: 14.77, yavl: 7.14, zhir: 5.43},
-    'Novgorodskaya': {yelt: 35.68, zyug: 23.71, lebe: 18.48, yavl: 11, zhir: 6.2},
-    'Novosibirskaya': {yelt: 25.61, zyug: 34.96, lebe: 10, yavl: 13.94, zhir: 9.76},
-    'Omskaya': {yelt: 32.8, zyug: 36.99, lebe: 8.37, yavl: 8.96, zhir: 6.95},
-    'Orenburgskaya': {yelt: 25.96, zyug: 42.13, lebe: 13.62, yavl: 5.84, zhir: 7.51},
-    'Orlovskaya': {yelt: 21.46, zyug: 54.25, lebe: 11.8, yavl: 3.89, zhir: 4.41},
-    'Penzenskaya': {yelt: 20.81, zyug: 50.6, lebe: 12.06, yavl: 6.93, zhir: 5.29},
-    'Permskaya': {yelt: 55.27, zyug: 16.12, lebe: 9.69, yavl: 7.21, zhir: 6.24},
-    'Pskovskaya': {yelt: 24.81, zyug: 30.39, lebe: 23.56, yavl: 7.04, zhir: 10.19},
-    'Rostovskaya': {yelt: 29.08, zyug: 34.99, lebe: 20.04, yavl: 7.7, zhir: 4.61},
-    'Ryazanskaya': {yelt: 24.7, zyug: 40.07, lebe: 19.81, yavl: 5.6, zhir: 5.43},
-    'Samarskaya': {yelt: 36.13, zyug: 35.17, lebe: 11.65, yavl: 6.16, zhir: 5.61},
-    'Saratovskaya': {yelt: 28.38, zyug: 41.59, lebe: 12.76, yavl: 5.28, zhir: 7.09},
-    'Sakhalinskaya': {yelt: 29.86, zyug: 26.91, lebe: 18.67, yavl: 9.26, zhir: 9.06},
-    'Sverdlovskaya': {yelt: 59.45, zyug: 11.66, lebe: 14.18, yavl: 5.36, zhir: 4.88},
-    'Smolenskaya': {yelt: 21.98, zyug: 44.57, lebe: 15.92, yavl: 5.11, zhir: 8.33},
-    'Tambovskaya': {yelt: 20.91, zyug: 52.26, lebe: 11.71, yavl: 4.63, zhir: 6.1},
-    'Tverskaya': {yelt: 32.11, zyug: 33.59, lebe: 17.14, yavl: 6.95, zhir: 5.52},
-    'Tomskaya': {yelt: 34.95, zyug: 22.13, lebe: 19.69, yavl: 10.9, zhir: 7.11},
-    'Tulskaya': {yelt: 29.96, zyug: 30.23, lebe: 24.03, yavl: 6.59, zhir: 4.58},
-    'Tюменskaya': {yelt: 39.07, zyug: 27.31, lebe: 13.28, yavl: 5.7, zhir: 9.38},
-    'Ulyanovskaya': {yelt: 23.78, zyug: 45.83, lebe: 12.34, yavl: 5.91, zhir: 7.38},
-    'Chelyabinskaya': {yelt: 36.6, zyug: 24.73, lebe: 19.82, yavl: 8.77, zhir: 5.23},
-    'Chitinskaya': {yelt: 24.54, zyug: 39.12, lebe: 11.7, yavl: 5.49, zhir: 12.95},
-    'Yaroslavskaya': {yelt: 32.93, zyug: 18.2, lebe: 31, yavl: 8.32, zhir: 4.84},
     'Moscow': {yelt: 61.16, zyug: 14.85, lebe: 9.62, yavl: 7.96, zhir: 1.46},
     'St_Petersburg': {yelt: 49.6, zyug: 14.94, lebe: 14.01, yavl: 15.15, zhir: 2.15},
-    'Evreyskaya_AO': {yelt: 30.36, zyug: 32.84, lebe: 15.3, yavl: 6.45, zhir: 7.99},
-    'Aginskiy_Buryatskiy': {yelt: 44.73, zyug: 35.74, lebe: 5.34, yavl: 2.6, zhir: 5.68},
-    'Komi_Permyatskiy': {yelt: 53.29, zyug: 23.71, lebe: 5.45, yavl: 3, zhir: 8.51},
-    'Koryakskiy': {yelt: 45.99, zyug: 14.97, lebe: 15.79, yavl: 8.93, zhir: 6.5},
-    'Nenetskiy': {yelt: 42.64, zyug: 18.37, lebe: 11.98, yavl: 7.64, zhir: 9.93},
-    'Taymyrskiy': {yelt: 49.7, zyug: 12.14, lebe: 14.98, yavl: 6.5, zhir: 10.12},
-    'Ust_Ordynskiy': {yelt: 36.99, zyug: 40.01, lebe: 8.54, yavl: 3.96, zhir: 4.56},
-    'Khanty_Mansiyskiy': {yelt: 52.53, zyug: 12.82, lebe: 15.14, yavl: 6.61, zhir: 7.59},
-    'Chukotskiy': {yelt: 48.49, zyug: 13.5, lebe: 17.06, yavl: 6.37, zhir: 7.56},
-    'Evenkiyskiy': {yelt: 43.42, zyug: 20, lebe: 16.41, yavl: 6.29, zhir: 7.05},
-    'Yamalo_Nenetskiy': {yelt: 55.26, zyug: 9.18, lebe: 15.76, yavl: 6.25, zhir: 7.57}
+    'Sverdlovskaya': {yelt: 59.45, zyug: 11.66, lebe: 14.18, yavl: 5.36, zhir: 4.88},
+    'Kemerovskaya': {yelt: 23.02, zyug: 38.88, lebe: 15.29, yavl: 5.34, zhir: 11.63},
+    'Krasnodarskiy': {yelt: 26.26, zyug: 39.42, lebe: 17.49, yavl: 6.36, zhir: 6.38},
+    'Tatarstan': {yelt: 38.34, zyug: 38.1, lebe: 7.38, yavl: 6.9, zhir: 2.58},
+    'Dagestan': {yelt: 28.52, zyug: 63.23, lebe: 1.34, yavl: 1.7, zhir: 1.12}
 };
 
-// Профили регионов для связи с классами (упрощенно)
-Q.region_profiles = {
-    'Moscow': { urban: 1, industrial: 0, budget: 1, intel: 1, rural: 0, weight: 8 },
-    'Sverdlovskaya': { urban: 0.8, industrial: 1, budget: 0.5, intel: 0.5, rural: 0.2, weight: 3.2 },
-    'Dagestan': { urban: 0.3, industrial: 0.2, budget: 0.7, intel: 0.2, rural: 1, weight: 1.5 },
-    // ... дефолтный профиль для остальных
-};
-
-// Инициализация текущих данных
 Q.region_data = {};
 for (var rid in Q.region_targets) {
     Q.region_data[rid] = { yelt: 8, zyug: 22, lebe: 10, yavl: 11, zhir: 12, others: 37 };
 }
 
-Q.timers = ['advisor_action', 'regional_visit', 'agitation', 'negotiation', 'patriotic_forces', 'davos_forum'];
+Q.timers = ['regional_visit', 'agitation', 'negotiation', 'patriotic_forces', 'advisor_action', 'davos', 'food_campaign', 'belovezha'];
 for (var t of Q.timers) Q[t + '_timer'] = 0;
 
 Q.player_candidate = '';
@@ -201,5 +108,7 @@ Q.advisor_zhirinovsky = 1;
 Q.advisor_lebed = 1;
 Q.advisor_yavlinsky = 1;
 Q.advisor_fyodorov = 1;
+
+Q.historical_mode = 1;
 !}
 go-to: candidate_selection

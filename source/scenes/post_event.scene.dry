@@ -1,13 +1,23 @@
 title: Обработка хода
 new-page: true
 on-arrival: {!
+// 1. ПЕРЕСЧЕТ СИМУЛЯЦИИ ВЫБОРОВ
 this.run_scene('election_algorithm');
 
-if (Q.year == 1996 && Q.month == 2 && Q.week == 3 && !Q.davos_seen) {
+// 2. ИСТОРИЧЕСКИЕ СОБЫТИЯ
+// Февраль: Давосский форум (Семибанкирщина)
+if (Q.year == 1996 && Q.month == 2 && Q.week >= 2 && !Q.davos_seen) {
     Q.davos_seen = 1;
     this.run_scene('davos_forum');
 }
 
+// Март: Денонсация Беловежских соглашений (исторически 15 марта)
+if (Q.year == 1996 && Q.month == 3 && Q.week >= 2 && !Q.belovezha_seen) {
+    Q.belovezha_seen = 1;
+    this.run_scene('belovezha_event');
+}
+
+// 3. ПРОВЕРКА УСЛОВИЙ ВЫБОРОВ (16 июня 1996)
 if (Q.year == 1996 && Q.month == 6 && Q.day >= 16) {
     this.run_scene('election_simulation');
 }

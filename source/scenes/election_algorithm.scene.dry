@@ -1,77 +1,109 @@
 title: Алгоритм выборов
 on-arrival: {!
-// --- 1. ВНЕШНИЕ МОДИФИКАТОРЫ ---
-var momentum_yelt = 1.0;
-var momentum_zyug = 1.0;
+// --- 1. ПЕРЕСЧЕТ НАЦИОНАЛЬНОГО НАСТРОЯ КЛАССОВ ---
 
-// Олигархический пакт (Семибанкирщина)
-if (Q.month >= 3) {
-    momentum_yelt += 0.2;
+// Модификаторы для классов на основе действий игрока
+var class_mods = {
+    workers: { zyug: 0, yelt: 0, lebe: 0 },
+    budgetniki: { zyug: 0, yelt: 0, fear: 0 },
+    intelligentsia: { zyug: 0, yavl: 0, fear: 0 },
+    rural: { zyug: 0, yelt: 0 },
+    military: { lebe: 0, zyug: 0 }
+};
+
+// Ельцинский рост (Семибанкирщина и СМИ)
+var yelt_base_momentum = 0.5;
+if (Q.month >= 3) yelt_base_momentum += 1.0; // Апрель-май: мощнейший медиа-удар
+if (Q.davos_seen) yelt_base_momentum += 0.2;
+
+// Влияние параметров игрока
+var zyug_momentum = 0.3;
+if (Q.radicalism > 60) {
+    zyug_momentum += 0.5; // Мобилизация рабочих
+    Q.fear_of_communism += 1.5; // Рост страха
+}
+if (Q.moderation > 60) {
+    zyug_momentum += 0.4; // Привлечение бюджетников
+    Q.fear_of_communism -= 1.0;
 }
 
-// Страх перед коммунизмом бьет по Зюганову
-if (Q.fear_of_communism > 30) {
-    momentum_zyug -= (Q.fear_of_communism - 30) / 200;
+// Применяем тренды к матрице поддержки (упрощенно)
+for (var c in Q.support_matrix) {
+    var sm = Q.support_matrix[c];
+
+    // Ельцин растет везде
+    sm.yelt += yelt_base_momentum;
+
+    // Зюганов растет от импульса, но падает от страха
+    sm.zyug += zyug_momentum - (Q.fear_of_communism / 50);
+
+    // Лебедь и Явлинский - дрейф (исторический тренд)
+    if (Q.month < 6) {
+        sm.lebe += 0.4;
+        sm.yavl -= 0.1;
+        sm.zhir -= 0.2;
+    }
 }
 
-// Радикализм мобилизует ядро, но пугает колеблющихся
-if (Q.radicalism > 50) {
-    momentum_zyug -= 0.1;
-} else if (Q.moderation > 60) {
-    momentum_zyug += 0.15;
-}
+// --- 2. ДИНАМИЧЕСКИЙ ПЕРЕСЧЕТ РЕГИОНОВ ---
+// Популярность в регионе = взвешенная сумма поддержки классов в этом регионе
 
-// --- 2. РЕГИОНАЛЬНЫЙ ДРЕЙФ К ЦЕЛЯМ ---
-// Каждую неделю мы немного приближаемся к историческому результату
-// Это симулирует естественный ход кампании
+var national_sum = { yelt: 0, zyug: 0, lebe: 0, zhir: 0, yavl: 0 };
+var weight_total = 0;
 
-for (var rid in Q.region_data) {
-    var cur = Q.region_data[rid];
+for (var rid in Q.region_targets) {
     var target = Q.region_targets[rid];
+    var current = Q.region_data[rid];
+    var profile = Q.region_profiles[rid] || { urban: 0.5, industrial: 0.5, budget: 0.5, intel: 0.3, rural: 0.5, weight: 1.0 };
 
-    // Дрейф (примерно за 20 ходов-недель)
-    cur.yelt += (target.yelt - cur.yelt) * 0.05 * momentum_yelt;
-    cur.zyug += (target.zyug - cur.zyug) * 0.05 * momentum_zyug;
-    cur.lebe += (target.lebe - cur.lebe) * 0.05;
-    cur.yavl += (target.yavl - cur.yavl) * 0.05;
-    cur.zhir += (target.zhir - cur.zhir) * 0.05;
+    // Расчет текущей поддержки в регионе на основе федеральных трендов классов
+    // Но регион также "дрейфует" к своему историческому таргету
 
-    // Нормализация региона (чтобы сумма была ~95, остаток 5% на мелких)
-    var r_sum = cur.yelt + cur.zyug + cur.lebe + cur.yavl + cur.zhir;
-    var r_multiplier = 95.0 / r_sum;
-    cur.yelt *= r_multiplier;
-    cur.zyug *= r_multiplier;
-    cur.lebe *= r_multiplier;
-    cur.yavl *= r_multiplier;
-    cur.zhir *= r_multiplier;
+    var r_yelt = current.yelt + (yelt_base_momentum * profile.urban);
+    var r_zyug = current.zyug + (zyug_momentum * (profile.industrial + profile.rural));
+
+    // Модификатор админресурса
+    var admin = Q.government_administrative_resource / 100;
+    if (profile.urban > 0.8) admin *= 0.5; // В городах сложнее фальсифицировать
+
+    r_yelt += admin * 2;
+
+    // Сближение с таргетом (эффект кампании)
+    r_yelt += (target.yelt - r_yelt) * 0.05;
+    r_zyug += (target.zyug - r_zyug) * 0.05;
+
+    // Обновляем региональные данные
+    current.yelt = r_yelt;
+    current.zyug = r_zyug;
+    current.lebe += (target.lebe - current.lebe) * 0.05;
+    current.yavl += (target.yavl - current.yavl) * 0.05;
+    current.zhir += (target.zhir - current.zhir) * 0.05;
+
+    // Нормализация
+    var r_total = current.yelt + current.zyug + current.lebe + current.yavl + current.zhir;
+    var r_mult = 96 / r_total;
+    current.yelt *= r_mult;
+    current.zyug *= r_mult;
+    current.lebe *= r_mult;
+    current.zhir *= r_mult;
+    current.yavl *= r_mult;
+
+    // Агрегация в национальный результат
+    var w = profile.weight || 1.0;
+    national_sum.yelt += current.yelt * w;
+    national_sum.zyug += current.zyug * w;
+    national_sum.lebe += current.lebe * w;
+    national_sum.zhir += current.zhir * w;
+    national_sum.yavl += current.yavl * w;
+    weight_total += w;
 }
 
-// --- 3. АГРЕГАЦИЯ НАЦИОНАЛЬНОГО УРОВНЯ ---
-var total_yelt = 0;
-var total_zyug = 0;
-var total_lebe = 0;
-var total_yavl = 0;
-var total_zhir = 0;
-var r_count = 0;
-
-for (var rid in Q.region_data) {
-    var r = Q.region_data[rid];
-    total_yelt += r.yelt;
-    total_zyug += r.zyug;
-    total_lebe += r.lebe;
-    total_yavl += r.yavl;
-    total_zhir += r.zhir;
-    r_count++;
-}
-
-Q.yeltsin_support = total_yelt / r_count;
-Q.zyuganov_support = total_zyug / r_count;
-Q.lebed_support = total_lebe / r_count;
-Q.yavlinsky_support = total_yavl / r_count;
-Q.zhirinovsky_support = total_zhir / r_count;
-
-// Федоров и Прочие
-Q.fyodorov_support = 1.0;
-Q.others_support = 100 - (Q.yeltsin_support + Q.zyuganov_support + Q.lebed_support + Q.yavlinsky_support + Q.zhirinovsky_support + Q.fyodorov_support);
+// --- 3. ФИНАЛЬНЫЕ НАЦИОНАЛЬНЫЕ ЦИФРЫ ---
+Q.yeltsin_support = national_sum.yelt / weight_total;
+Q.zyuganov_support = national_sum.zyug / weight_total;
+Q.lebed_support = national_sum.lebe / weight_total;
+Q.zhirinovsky_support = national_sum.zhir / weight_total;
+Q.yavlinsky_support = national_sum.yavl / weight_total;
+Q.others_support = 100 - (Q.yeltsin_support + Q.zyuganov_support + Q.lebed_support + Q.zhirinovsky_support + Q.yavlinsky_support);
 
 !}

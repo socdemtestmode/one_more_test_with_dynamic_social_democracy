@@ -1,24 +1,90 @@
 title: Переговоры
 tags: negotiations
 
-@negotiate_zhirinovsky
-title: Владимир Жириновский (ЛДПР)
-view-if: negotiation_timer <= 0
-on-arrival: negotiation_timer = 3
+@negotiate_zhirinovsky_main
+title: Переговоры с ЛДПР
+view-if: negotiation_timer <= 0 and advisor_zhirinovsky = 1
+on-arrival: negotiation_timer = 5
+go-to: zhirinovsky_negotiations
 
-- @zhirinovsky_pact: Пакт о честных выборах.
+@negotiate_lebed_main
+title: Переговоры с Александром Лебедем
+view-if: negotiation_timer <= 0 and advisor_lebed = 1
+on-arrival: negotiation_timer = 6
+go-to: lebed_negotiations
+
+@zhirinovsky_negotiations
+new-page: true
+
+= Владимир Вольфович Жириновский
+
+Лидер ЛДПР принимает вас в своем кабинете.
+
+- @zhirinovsky_pact
+- @zhirinovsky_money
 
 @zhirinovsky_pact
-on-arrival: zhirinovsky_relation += 10
-go-to: main
+title: Предложить пакт о честных выборах.
+on-arrival: {!
+if (Q.moderation > 40) {
+    Q.zhirinovsky_relation += 15;
+    Q.administrative_resource += 5;
+} else {
+    Q.zhirinovsky_relation += 5;
+}
+!}
 
-@negotiate_lebed
-title: Александр Лебедь
-view-if: negotiation_timer <= 0
-on-arrival: negotiation_timer = 5
+«Честные выборы? В этой стране?» — Владимир Вольфович хохочет.
 
-- @lebed_order: Союз на почве порядка.
+- @main: Вернуться в штаб
+
+@zhirinovsky_money
+title: Попытаться перекупить лояльность (10 Финансов).
+view-if: money >= 10
+on-arrival: {!
+Q.money -= 10;
+Q.zhirinovsky_relation += 30;
+Q.fear_of_communism -= 2;
+!}
+
+Жириновский мгновенно меняет тон. «Ну вот, это разговор государственного мужа!»
+
+- @main: Вернуться в штаб
+
+@lebed_negotiations
+new-page: true
+
+= Генерал Александр Иванович Лебедь
+
+Генерал Лебедь встречает вас в полумраке.
+
+- @lebed_minister
+- @lebed_order
+
+@lebed_minister
+title: Предложить пост Министра Обороны в будущем правительстве.
+on-arrival: {!
+if (Q.military_relation > 50) {
+    Q.lebed_relation += 20;
+    Q.military_relation += 15;
+    Q.resources += 5;
+} else {
+    Q.lebed_relation += 10;
+}
+!}
+
+Лебедь усмехается. «Министр? Слова дешево стоят. Но армия меня услышит».
+
+- @main: Вернуться в штаб
 
 @lebed_order
-on-arrival: lebed_relation += 5
-go-to: main
+title: Предложить совместную программу "Порядок и Справедливость".
+on-arrival: {!
+Q.lebed_relation += 15;
+Q.moderation += 10;
+Q.radicalism -= 5;
+!}
+
+«Порядок — это то, что нужно России», — соглашается генерал.
+
+- @main: Вернуться в штаб

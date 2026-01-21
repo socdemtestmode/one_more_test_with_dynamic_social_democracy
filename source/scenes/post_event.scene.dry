@@ -3,7 +3,11 @@ new-page: true
 on-arrival: {!
 this.run_scene('election_algorithm');
 
-// Проверка на дату выборов (16 июня 1996)
+if (Q.year == 1996 && Q.month == 2 && Q.week == 3 && !Q.davos_seen) {
+    Q.davos_seen = 1;
+    this.run_scene('davos_forum');
+}
+
 if (Q.year == 1996 && Q.month == 6 && Q.day >= 16) {
     this.run_scene('election_simulation');
 }

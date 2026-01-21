@@ -26,7 +26,6 @@ new-page: true
 @start
 on-arrival: {!
 Q.started = 1;
-// Дата начала: конец января 1996 года
 Q.year = 1996;
 Q.month = 1;
 Q.week = 4;
@@ -35,49 +34,59 @@ Q.turn = 0;
 Q.time_scale = 'week';
 
 // --- ОСНОВНЫЕ ПОКАЗАТЕЛИ ИГРОКА ---
-Q.radicalism = 20;
-Q.moderation = 50;
-Q.fear_of_communism = 15;
-Q.media_penetration = 0.1;
-Q.administrative_resource = 0;
-Q.tolerance = 50;
-Q.turnout = 65;
+Q.radicalism = 25;
+Q.moderation = 40;
+Q.fear_of_communism = 20;
+Q.media_penetration = 0.05;
+Q.administrative_resource = 5;
+Q.government_administrative_resource = 60;
+Q.tolerance = 40;
+Q.turnout = 60;
+Q.resources = 15;
+Q.money = 20;
 
-// Ресурсы
-Q.resources = 10;
-Q.donations = 5;
-
-// Отношения с группами влияния
-Q.roc_relation = 40;
+// --- ГРУППЫ ВЛИЯНИЯ ---
+Q.roc_relation = 30;
 Q.oligarchs_relation = 5;
-Q.patriots_relation = 80;
-Q.military_relation = 50;
+Q.patriots_relation = 85;
+Q.military_relation = 45;
 Q.west_relation = 10;
-Q.cis_relation = 40;
+Q.cis_relation = 55;
+Q.regional_elites_relation = 35;
 
-// --- КАНДИДАТЫ (СТАРТОВЫЕ ДАННЫЕ - ЯНВАРЬ 1996) ---
-Q.candidates = ['yeltsin', 'zyuganov', 'zhirinovsky', 'lebed', 'yavlinsky', 'fyodorov', 'others'];
-
+// --- КАНДИДАТЫ ---
 Q.yeltsin_support = 8.0;
-Q.zyuganov_support = 21.0;
-Q.zhirinovsky_support = 11.0;
+Q.zyuganov_support = 22.0;
+Q.zhirinovsky_support = 12.0;
 Q.lebed_support = 10.0;
 Q.yavlinsky_support = 11.0;
-Q.fyodorov_support = 6.5;
-Q.others_support = 32.5; // Агрегация всех остальных
+Q.fyodorov_support = 7.0;
+Q.chernomyrdin_support = 4.0;
+Q.gaidar_support = 3.0;
+Q.gorbachev_support = 0.6;
+Q.others_support = 2.4;
 
-// --- ИСТОРИЧЕСКИЕ ЦЕЛИ (ДЛЯ ДРЕЙФА) ---
-Q.historical_targets = {
-    yeltsin: 35.28,
-    zyuganov: 32.03,
-    lebed: 14.52,
-    yavlinsky: 7.34,
-    zhirinovsky: 5.70,
-    fyodorov: 0.92,
-    others: 4.21
+// --- ДЕМОГРАФИЧЕСКАЯ МОДЕЛЬ ---
+Q.classes = ['workers', 'small_traders', 'budgetniki', 'intelligentsia', 'military', 'oligarchy', 'rural', 'unemployed', 'youth', 'elderly'];
+Q.class_proportions = {
+    workers: 30, small_traders: 8, budgetniki: 22, intelligentsia: 10, military: 5,
+    oligarchy: 0.5, rural: 18, unemployed: 6.5, youth: 15, elderly: 25
 };
 
-// --- РЕГИОНАЛЬНЫЕ ДАННЫЕ (ЦЕЛЕВЫЕ ПОКАЗАТЕЛИ 1 ТУРА) ---
+Q.support_matrix = {
+    workers: { yelt: 5, zyug: 45, lebe: 15, zhir: 15, yavl: 5, others: 15 },
+    small_traders: { yelt: 15, zyug: 5, lebe: 10, zhir: 25, yavl: 30, others: 15 },
+    budgetniki: { yelt: 8, zyug: 35, lebe: 10, zhir: 10, yavl: 15, others: 22 },
+    intelligentsia: { yelt: 20, zyug: 5, lebe: 5, zhir: 2, yavl: 45, others: 23 },
+    military: { yelt: 4, zyug: 25, lebe: 40, zhir: 15, yavl: 5, others: 11 },
+    oligarchy: { yelt: 80, zyug: 0, lebe: 5, zhir: 2, yavl: 10, others: 3 },
+    rural: { yelt: 6, zyug: 55, lebe: 8, zhir: 12, yavl: 2, others: 17 },
+    unemployed: { yelt: 2, zyug: 40, lebe: 20, zhir: 25, yavl: 2, others: 11 },
+    youth: { yelt: 15, zyug: 10, lebe: 15, zhir: 20, yavl: 25, others: 15 },
+    elderly: { yelt: 3, zyug: 65, lebe: 5, zhir: 10, yavl: 5, others: 12 }
+};
+
+// --- РЕГИОНАЛЬНЫЕ ДАННЫЕ (89 Субъектов - Цели 1 тура) ---
 Q.region_targets = {
     'Adygeya': {yelt: 20.02, zyug: 51.5, lebe: 13.99, yavl: 5.29, zhir: 5.07},
     'Altay_Rep': {yelt: 28.48, zyug: 43.61, lebe: 13.03, yavl: 3.46, zhir: 4.83},
@@ -150,7 +159,7 @@ Q.region_targets = {
     'Tverskaya': {yelt: 32.11, zyug: 33.59, lebe: 17.14, yavl: 6.95, zhir: 5.52},
     'Tomskaya': {yelt: 34.95, zyug: 22.13, lebe: 19.69, yavl: 10.9, zhir: 7.11},
     'Tulskaya': {yelt: 29.96, zyug: 30.23, lebe: 24.03, yavl: 6.59, zhir: 4.58},
-    'Tyumenskaya': {yelt: 39.07, zyug: 27.31, lebe: 13.28, yavl: 5.7, zhir: 9.38},
+    'Tюменskaya': {yelt: 39.07, zyug: 27.31, lebe: 13.28, yavl: 5.7, zhir: 9.38},
     'Ulyanovskaya': {yelt: 23.78, zyug: 45.83, lebe: 12.34, yavl: 5.91, zhir: 7.38},
     'Chelyabinskaya': {yelt: 36.6, zyug: 24.73, lebe: 19.82, yavl: 8.77, zhir: 5.23},
     'Chitinskaya': {yelt: 24.54, zyug: 39.12, lebe: 11.7, yavl: 5.49, zhir: 12.95},
@@ -167,32 +176,30 @@ Q.region_targets = {
     'Khanty_Mansiyskiy': {yelt: 52.53, zyug: 12.82, lebe: 15.14, yavl: 6.61, zhir: 7.59},
     'Chukotskiy': {yelt: 48.49, zyug: 13.5, lebe: 17.06, yavl: 6.37, zhir: 7.56},
     'Evenkiyskiy': {yelt: 43.42, zyug: 20, lebe: 16.41, yavl: 6.29, zhir: 7.05},
-    'Yamalo_Nenetskiy': {yelt: 55.26, zyug: 9.18, lebe: 15.76, yavl: 6.25, zhir: 7.57},
-    'Abroad': {yelt: 50, zyug: 10, lebe: 10, yavl: 20, zhir: 10}
+    'Yamalo_Nenetskiy': {yelt: 55.26, zyug: 9.18, lebe: 15.76, yavl: 6.25, zhir: 7.57}
 };
 
-// Инициализация текущих региональных данных (скалируем цели под Январь 96)
+// Профили регионов для связи с классами (упрощенно)
+Q.region_profiles = {
+    'Moscow': { urban: 1, industrial: 0, budget: 1, intel: 1, rural: 0, weight: 8 },
+    'Sverdlovskaya': { urban: 0.8, industrial: 1, budget: 0.5, intel: 0.5, rural: 0.2, weight: 3.2 },
+    'Dagestan': { urban: 0.3, industrial: 0.2, budget: 0.7, intel: 0.2, rural: 1, weight: 1.5 },
+    // ... дефолтный профиль для остальных
+};
+
+// Инициализация текущих данных
 Q.region_data = {};
 for (var rid in Q.region_targets) {
-    var target = Q.region_targets[rid];
-    Q.region_data[rid] = {
-        yelt: (target.yelt / Q.historical_targets.yeltsin) * Q.yeltsin_support,
-        zyug: (target.zyug / Q.historical_targets.zyuganov) * Q.zyuganov_support,
-        lebe: (target.lebe / Q.historical_targets.lebed) * Q.lebed_support,
-        yavl: (target.yavl / Q.historical_targets.yavlinsky) * Q.yavlinsky_support,
-        zhir: (target.zhir / Q.historical_targets.zhirinovsky) * Q.zhirinovsky_support
-    };
+    Q.region_data[rid] = { yelt: 8, zyug: 22, lebe: 10, yavl: 11, zhir: 12, others: 37 };
 }
 
-Q.timers = ['regional_visit', 'agitation', 'negotiation', 'patriotic_forces', 'advisor_action'];
-Q.regional_visit_timer = 0;
-Q.agitation_timer = 0;
-Q.negotiation_timer = 0;
-Q.patriotic_forces_timer = 0;
-Q.advisor_action_timer = 0;
+Q.timers = ['advisor_action', 'regional_visit', 'agitation', 'negotiation', 'patriotic_forces', 'davos_forum'];
+for (var t of Q.timers) Q[t + '_timer'] = 0;
 
 Q.player_candidate = '';
-Q.player_party_cohesion = 70;
-
+Q.advisor_zhirinovsky = 1;
+Q.advisor_lebed = 1;
+Q.advisor_yavlinsky = 1;
+Q.advisor_fyodorov = 1;
 !}
 go-to: candidate_selection

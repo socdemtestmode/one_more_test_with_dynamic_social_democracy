@@ -1,0 +1,24 @@
+title: Переговоры
+tags: negotiations
+
+@negotiate_zhirinovsky
+title: Владимир Жириновский (ЛДПР)
+view-if: negotiation_timer <= 0
+on-arrival: negotiation_timer = 3
+
+- @zhirinovsky_pact: Пакт о честных выборах.
+
+@zhirinovsky_pact
+on-arrival: zhirinovsky_relation += 10
+go-to: main
+
+@negotiate_lebed
+title: Александр Лебедь
+view-if: negotiation_timer <= 0
+on-arrival: negotiation_timer = 5
+
+- @lebed_order: Союз на почве порядка.
+
+@lebed_order
+on-arrival: lebed_relation += 5
+go-to: main

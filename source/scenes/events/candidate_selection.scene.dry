@@ -1,0 +1,67 @@
+title: Выбор лидера оппозиции
+new-page: true
+view-if: turn = 1
+on-arrival: turn = 2
+
+**Москва, Конец января 1996 года.**
+
+В Доме Советов и штаб-квартирах левых партий царит напряжение. Нам нужно решить, кто станет единым кандидатом от Народно-патриотического союза России (НПСР).
+
+- @select_zyuganov: Геннадий Зюганов.
+- @select_anpilov: Виктор Анпилов.
+- @select_kharitonov: Николай Харитонов.
+- @select_secret: Николай Рыжков.
+
+@select_zyuganov
+title: Геннадий Зюганов
+on-arrival: {!
+Q.player_candidate = 'zyuganov';
+Q.zyuganov_support += 2;
+Q.radicalism -= 10;
+Q.moderation += 15;
+Q.fear_of_communism -= 5;
+Q.patriots_relation += 10;
+Q.player_party_cohesion = 80;
+!}
+go-to: main
+
+@select_anpilov
+title: Виктор Анпилов
+on-arrival: {!
+Q.player_candidate = 'anpilov';
+Q.zyuganov_support -= 10;
+Q.anpilov_support = 15;
+Q.radicalism += 30;
+Q.moderation -= 20;
+Q.fear_of_communism += 25;
+Q.patriots_relation += 20;
+Q.player_party_cohesion = 50;
+!}
+go-to: main
+
+@select_kharitonov
+title: Николай Харитонов
+on-arrival: {!
+Q.player_candidate = 'kharitonov';
+Q.zyuganov_support -= 5;
+Q.kharitonov_support = 10;
+Q.radicalism -= 5;
+Q.moderation += 10;
+Q.fear_of_communism -= 10;
+Q.patriots_relation -= 5;
+!}
+go-to: main
+
+@select_secret
+title: Николай Рыжков
+on-arrival: {!
+Q.player_candidate = 'ryzhkov';
+Q.zyuganov_support -= 5;
+Q.ryzhkov_support = 12;
+Q.radicalism -= 15;
+Q.moderation += 20;
+Q.fear_of_communism -= 15;
+Q.patriots_relation -= 10;
+Q.player_party_cohesion = 60;
+!}
+go-to: main

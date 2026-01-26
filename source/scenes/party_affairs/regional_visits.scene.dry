@@ -1,0 +1,33 @@
+title: Региональные визиты
+tags: regional_visits
+
+@regional_visit_hub
+title: Работа в регионах
+view-if: regional_visit_timer <= 0
+on-arrival: regional_visit_timer = 4
+
+Где кандидат должен появиться?
+
+- @visit_kuzbass: Поездка в Кемерово.
+- @visit_nizhny: Поездка в Нижний.
+
+@visit_kuzbass
+on-arrival: {!
+Q.money -= 2;
+Q.region_data.Kemerovskaya.zyug += 8.0;
+Q.workers_loyalty += 15.0;
+!}
+
+Шахтеры требуют выплаты зарплат.
+
+- @main: Вернуться
+
+@visit_nizhny
+on-arrival: {!
+Q.money -= 3;
+Q.region_data.Nizhegorodskaya.zyug += 5.0;
+!}
+
+Вотчина Немцова встретила нас прохладно.
+
+- @main: Вернуться

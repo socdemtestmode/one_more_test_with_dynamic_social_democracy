@@ -1,0 +1,10 @@
+title: События
+tags: events
+
+@historical_event_dummy
+title: Ход кампании
+on-arrival: turn_actions = 1
+view-if: turn > 2
+
+Кампания продолжается.
+- @main: Продолжить

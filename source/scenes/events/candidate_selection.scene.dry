@@ -1,0 +1,31 @@
+title: Выбор единого кандидата
+new-page: true
+view-if: turn = 1
+on-arrival: turn = 2
+
+**Москва, Январь 1996 года.**
+
+- @select_zyuganov: Геннадий Зюганов (КПРФ).
+- @select_anpilov: Виктор Анпилов (Трудовая Россия).
+
+@select_zyuganov
+title: Геннадий Зюганов
+on-arrival: {!
+Q.player_candidate = 'zyuganov';
+Q.zyuganov_support += 2;
+Q.radicalism -= 10;
+Q.moderation += 15;
+Q.rel_regional_barons += 10;
+!}
+go-to: main
+
+@select_anpilov
+title: Виктор Анпилов
+on-arrival: {!
+Q.player_candidate = 'anpilov';
+Q.zyuganov_support -= 10;
+Q.anpilov_support = 15;
+Q.radicalism += 40;
+Q.fear_of_communism += 30;
+!}
+go-to: main

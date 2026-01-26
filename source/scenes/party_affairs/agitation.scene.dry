@@ -1,0 +1,29 @@
+title: Кампания
+tags: party_affairs
+
+@agitation_gazeta
+title: Печатная агитация
+on-arrival: {!
+Q.agitation_timer = 2;
+Q.money -= 2;
+Q.zyuganov_support += 0.4;
+Q.support_matrix.elderly.zyug += 1.5;
+!}
+
+Миллионные тиражи расходятся по стране.
+
+- @main: Вернуться в штаб
+
+@agitation_tv
+title: Битва за телеэфир
+view-if: money >= 8
+on-arrival: {!
+Q.agitation_timer = 4;
+Q.money -= 8;
+Q.media_penetration += 0.08;
+Q.fear_of_communism += 2;
+!}
+
+Мы покупаем время в рекламных блоках.
+
+- @main: Вернуться в штаб

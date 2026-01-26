@@ -1,0 +1,35 @@
+title: Денонсация Беловежских соглашений
+new-page: true
+view-if: belovezha_seen = 1
+
+**15 марта 1996 года. Государственная Дума РФ.**
+
+Фракция КПРФ и ее союзники выносят на голосование проект постановления о денонсации соглашений, закрепивших развал Советского Союза в 1991 году.
+
+- @belovezha_support: Победить в голосовании.
+- @belovezha_vague: Символический жест.
+
+@belovezha_support
+on-arrival: {!
+Q.radicalism += 25;
+Q.fear_of_communism += 20;
+Q.zyuganov_support += 5;
+Q.yeltsin_admin_resource += 10;
+Q.chaos += 20;
+Q.rel_imf_west -= 30;
+!}
+
+Постановление принято! Гром аплодисментов.
+
+- @main: Вернуться
+
+@belovezha_vague
+on-arrival: {!
+Q.moderation += 10;
+Q.zyuganov_support += 1;
+Q.radicalism -= 5;
+!}
+
+Вы принимаете мягкую версию документа.
+
+- @main: Вернуться

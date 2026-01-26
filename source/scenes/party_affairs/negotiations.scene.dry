@@ -1,0 +1,29 @@
+title: Переговоры
+tags: negotiations
+
+@negotiate_zhirinovsky_main
+title: Переговоры с ЛДПР
+view-if: negotiation_timer <= 0 and advisor_zhirinovsky = 1
+on-arrival: negotiation_timer = 5
+go-to: zhirinovsky_negotiations
+
+@zhirinovsky_negotiations
+new-page: true
+
+= Владимир Вольфович Жириновский
+
+Лидер ЛДПР принимает вас в своем кабинете.
+
+- @zhirinovsky_pact: Предложить "Пакт о честных выборах".
+
+@zhirinovsky_pact
+on-arrival: {!
+if (Q.moderation > 40) {
+    Q.zhirinovsky_relation += 20;
+    Q.administrative_resource += 10;
+}
+!}
+
+«Давайте! Будем бить фальсификаторов по рукам!»
+
+- @main: Вернуться

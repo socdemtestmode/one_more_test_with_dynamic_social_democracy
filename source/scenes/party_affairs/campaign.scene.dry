@@ -1,0 +1,31 @@
+title: Кампания
+tags: campaign_activities
+
+@regional_visit
+title: Поездка в регионы
+view-if: regional_visit_timer <= 0
+on-arrival: regional_visit_timer = 4; resources -= 2
+
+Где кандидат должен выступить?
+
+- @visit_volga: Поволжье.
+- @visit_center: Центральный округ.
+
+@visit_volga
+on-arrival: zyuganov_support += 0.8
+go-to: main
+
+@visit_center
+on-arrival: moderation += 3
+go-to: main
+
+@agitation
+title: Агитация
+view-if: agitation_timer <= 0
+on-arrival: agitation_timer = 2; resources -= 3
+
+- @agitation_leaflets: Листовки.
+
+@agitation_leaflets
+on-arrival: zyuganov_support += 0.6
+go-to: main

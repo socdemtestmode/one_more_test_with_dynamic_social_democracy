@@ -1,0 +1,225 @@
+title: Исторические события
+new-page: true
+
+@belovezh_denunciation
+view-if: year == 1996 and month == 3 and belovezh_seen == 0
+on-arrival: belovezh_seen = 1;
+
+= Денонсация Беловежских соглашений
+
+Март 1996 года. Государственная Дума рассматривает постановление о денонсации Беловежских соглашений. Это политический жест, не имеющий прямой юридической силы для восстановления СССР, но обладающий колоссальным общественным резонансом.
+
+Как поступит наш кандидат?
+
+- @belovezh_support: Решительно поддержать («За» восстановление СССР)
+- @belovezh_moderate: Ограничиться призывами к интеграции
+- @belovezh_oppose: Проголосовать против, чтобы не пугать Запад
+
+@belovezh_support
+on-arrival: {! Q.radicalism += 2; Q.rel_patriotic_forces += 30; Q.nostalgic_zyuganov += 15; Q.rel_west -= 15; Q.rel_cis -= 20; Q.communist_threat += 3; Q.popular_unrest += 5; !}
+Дума приняла постановление! Патриоты ликуют, на митингах поют «Интернационал». Но Ельцин получил идеальный повод для атаки: он обвиняет нас в попытке разжечь войну со всеми соседями. В странах СНГ паника, Запад обсуждает санкции.
+go-to: main
+
+@belovezh_moderate
+on-arrival: {! Q.radicalism -= 0.5; Q.rel_cis += 5; Q.rel_patriotic_forces -= 5; Q.budget_workers_zyuganov += 3; !}
+Мы выступили за «добровольное сближение братских народов». Это не вызвало скандала, но и не прибавило нам популярности у радикальных сторонников.
+go-to: main
+
+@belovezh_oppose
+on-arrival: {! Q.radicalism -= 3; Q.rel_patriotic_forces -= 40; Q.rel_west += 10; Q.rel_cis += 10; Q.communist_threat -= 2; !}
+Наш отказ поддержать денонсацию вызвал шок в рядах КПРФ. Анпилов назвал нас предателями. Зато Ельцин потерял один из главных аргументов своей пропаганды.
+go-to: main
+
+@davos_visit
+view-if: year == 1996 and month == 2 and davos_seen == 0
+on-arrival: davos_seen = 1;
+
+= Визит в Давос
+
+Зюганов приглашен на Всемирный экономический форум. Это шанс показать миру лицо «новой оппозиции». В кулуарах форума собралась вся российская бизнес-элита, включая Чубайса и Березовского.
+
+Какую речь выберет кандидат?
+
+- @davos_radical: Речь о неизбежности социализма и национализации.
+- @davos_moderate: Речь о «социальном партнерстве» и гарантиях инвесторам.
+- @davos_nationalist: Речь о «национальном пути» и защите суверенитета.
+
+@davos_radical
+on-arrival: {! Q.rel_west -= 15; Q.rel_oligarchs -= 40; Q.communist_threat += 8; Q.radicalism += 2; Q.davos_speech = 'radical'; !}
+Зал слушал в гробовой тишине. Олигархи в ужасе. Вечером того же дня Чубайс и Березовский начали договариваться о создании единого штаба по спасению Ельцина.
+go-to: main
+
+@davos_moderate
+on-arrival: {! Q.rel_west += 20; Q.rel_oligarchs += 15; Q.communist_threat -= 10; Q.radicalism -= 2; Q.rel_patriotic_forces -= 15; Q.davos_speech = 'moderate'; !}
+Западные банкиры аплодировали. Вы выглядите как ответственный политик. Олигархи призадумались: «А может, со Зюгановым можно договориться?».
+go-to: main
+
+@davos_nationalist
+on-arrival: {! Q.rel_patriotic_forces += 15; Q.radicalism += 0.5; Q.rel_west -= 10; Q.nationalists_zyuganov += 10; Q.davos_speech = 'nationalist'; !}
+Вы говорили о сильной России. Это вызвало умеренный интерес, но не изменило общей расстановки сил.
+go-to: main
+
+@oligarch_conspiracy
+view-if: year == 1996 and month == 3 and oligarch_conspiracy_seen == 0
+on-arrival: oligarch_conspiracy_seen = 1;
+
+= «Сговор олигархов»
+
+Март 1996 года. В Давосе и Москве группа крупнейших российских банкиров и предпринимателей («Семибанкирщина») принимает решение объединить усилия для спасения режима Ельцина. Они понимают, что в случае победы коммунистов их ждет национализация и, возможно, тюрьма.
+
+{!
+var chance = Math.random() * 100;
+var trigger_chance = 95;
+if (Q.player_candidate != 'zyuganov' && Q.player_candidate != 'anpilov' && Q.player_candidate != 'tyulkin') {
+    trigger_chance -= 15;
+}
+trigger_chance += (Q.radicalism - 5) * 5;
+if (Q.davos_speech == 'moderate') trigger_chance -= 25;
+
+if (chance < trigger_chance) {
+    Q.oligarchs_united = 1;
+} else {
+    Q.oligarchs_united = 0;
+}
+!}
+
+[? if oligarchs_united == 1 : Огромные финансовые ресурсы и контроль над основными телеканалами (ОРТ, НТВ) теперь работают на одного кандидата. Против нас разворачивается беспрецедентная кампания очернения. ?]
+[? if oligarchs_united == 0 : Удивительно, но олигархи не смогли договориться. Внутренние противоречия и ваше умелое лавирование в Давосе оказались сильнее страха перед коммунистами. ?]
+
+- @conspiracy_effect: Принять к сведению
+  view-if: oligarchs_united == 1
+- @continue: Продолжить
+  view-if: oligarchs_united == 0
+
+@conspiracy_effect
+on-arrival: {!
+Q.yeltsin_support += 8;
+Q.zyuganov_support -= 4;
+Q.admin_resource += 4;
+Q.communist_threat += 5;
+Q.media_penetration -= 3;
+Q.media_bias += 20;
+!}
+go-to: main
+
+@clinton_support
+view-if: year == 1996 and month == 4 and clinton_seen == 0
+on-arrival: clinton_seen = 1;
+
+= Визит Билла Клинтона
+
+Апрель 1996 года. Президент США Билл Клинтон прибывает в Москву. Это явный жест поддержки Ельцина со стороны Запада. Клинтон называет Бориса Николаевича «настоящим демократом».
+
+- @clinton_protest: Организовать антиамериканские митинги.
+- @clinton_diplomacy: Попытаться добиться встречи с Клинтоном.
+- @clinton_ignore: Ограничиться сухим заявлением.
+
+@clinton_protest
+on-arrival: {! Q.nationalists_zyuganov += 15; Q.rel_west -= 20; Q.rel_patriotic_forces += 10; Q.popular_unrest += 5; !}
+Мы мобилизовали патриотический электорат, но Запад теперь окончательно видит в нас врагов.
+go-to: main
+
+@clinton_diplomacy
+on-arrival: {!
+var chance = Math.random() * 100;
+if (chance < 30) {
+    Q.rel_west += 10;
+    Q.communist_threat -= 5;
+} else {
+    Q.rel_patriotic_forces -= 5;
+}
+!}
+Клинтон отказался от встречи, но сам факт нашего обращения показал нашу готовность к диалогу.
+go-to: main
+
+@clinton_ignore
+go-to: main
+
+@yeltsin_dance
+view-if: year == 1996 and month == 6 and days_until_election < 15 and dance_seen == 0
+on-arrival: dance_seen = 1;
+
+= «Голосуй или проиграешь»: Танцы Ельцина
+
+Июнь 1996 года. Ельцин прибывает в Ростов-на-Дону, где на рок-концерте пускается в пляс вместе с молодежью. Пропаганда кричит: «Ельцин полон сил и энергии!».
+
+- @dance_health: Напомнить о реальном состоянии здоровья президента.
+- @dance_show: Назвать это «пиром во время чумы».
+- @dance_ignore: Продолжать работу.
+
+@dance_health
+on-arrival: {! Q.yeltsin_support -= 2; Q.intellectual_capital += 2; !}
+Мы распространили информацию о том, что после каждого такого «шоу» президент восстанавливается под капельницами.
+go-to: main
+
+@dance_show
+on-arrival: {! Q.popular_unrest += 5; Q.workers_zyuganov += 5; !}
+«Страна в руинах, а он танцует!» — наши листовки бьют по чувству справедливости.
+go-to: main
+
+@dance_ignore
+go-to: main
+
+@xerox_box
+view-if: days_until_election < 0 and days_until_election > -10 and xerox_seen == 0
+on-arrival: xerox_seen = 1;
+
+= Скандал с «Коробкой из-под ксерокса»
+
+19 июня 1996 года. Задержаны два активиста штаба Ельцина с коробкой, в которой находилось более 500 тысяч долларов наличными. Это «черная касса» Кремля.
+
+- @xerox_attack: Требовать снятия Ельцина с выборов.
+- @xerox_chaos: Поддержать силовиков в попытке навести порядок.
+- @xerox_legal: Обратиться в ЦИК с жалобой.
+
+@xerox_attack
+on-arrival: {! Q.yeltsin_support -= 10; Q.admin_resource -= 3; Q.popular_unrest += 10; Q.media_penetration += 5; !}
+Страна в шоке. Рейтинг Ельцина рушится.
+go-to: main
+
+@xerox_chaos
+on-arrival: {! Q.tolerance -= 5; Q.popular_unrest += 20; Q.admin_resource -= 5; Q.radicalism += 2; !}
+Мы призвали армию поддержать силовиков. Страна на грани гражданской войны.
+go-to: main
+
+@xerox_legal
+on-arrival: {! Q.tolerance += 3; Q.intellectual_capital += 5; Q.admin_resource -= 2; !}
+Мы действуем по закону. Это разрушает образ Ельцина как «гаранта».
+go-to: main
+
+@black_pr_campaign
+view-if: days_until_election < 30 and black_pr_seen == 0
+on-arrival: black_pr_seen = 1;
+
+= «Купи еды в последний раз»
+
+Начинается финальный этап кампании. На телевидении крутятся ролики, пугающие народ дефицитом и хаосом.
+
+{!
+var chance = Math.random() * 100;
+var trigger_chance = 95;
+if (Q.player_candidate != 'zyuganov' && Q.player_candidate != 'anpilov' && Q.player_candidate != 'tyulkin') trigger_chance -= 30;
+if (Q.yavlinsky_allied) trigger_chance -= 20;
+if (Q.media_penetration > 7) trigger_chance -= 15;
+
+if (chance < trigger_chance) {
+    Q.black_pr_success = 1;
+} else {
+    Q.black_pr_success = 0;
+}
+!}
+
+[? if black_pr_success == 1 : Пропаганда достигает цели. Колеблющиеся избиратели склоняются на сторону власти. ?]
+[? if black_pr_success == 0 : Черный пиар оказался слишком топорным. Люди больше не верят пугалкам. ?]
+
+- @black_pr_effect: Тяжелый удар
+  view-if: black_pr_success == 1
+- @continue: Продолжить
+  view-if: black_pr_success == 0
+
+@black_pr_effect
+on-arrival: {! Q.zyuganov_support -= 6; Q.yeltsin_support += 6; Q.communist_threat += 4; !}
+go-to: main
+
+@continue
+go-to: main

@@ -1,106 +1,172 @@
-title: Election
+title: Election Algorithm
 on-arrival: {!
-// calculate normalized class voting amounts (0 to 100)
-for (var c of Q.classes) {
-    var class_votes = 0;
-    for (var party of Q.parties) {
-        if (Q[c+'_'+party] < 0) {
-            Q[c+'_'+party] = 0;
+// МАСШТАБНОЕ УГЛУБЛЕНИЕ ЛОГИКИ ВЫБОРОВ
+
+// 1. Матрица взаимодействия (Демография x Кандидаты)
+// Здесь мы определяем базовую склонность групп к кандидатам, которая будет модулироваться в игре.
+
+if (!Q.demo_initialized) {
+    // Классовые предпочтения (базовые)
+    Q.class_preferences = {
+        'workers': {'zyuganov': 40, 'yeltsin': 10, 'zhirinovsky': 15, 'lebed': 15, 'yavlinsky': 5},
+        'traders': {'yeltsin': 30, 'zyuganov': 5, 'yavlinsky': 25, 'lebed': 15, 'zhirinovsky': 10},
+        'budget_workers': {'zyuganov': 30, 'yeltsin': 20, 'lebed': 20, 'fedorov': 10, 'yavlinsky': 5},
+        'intelligentsia': {'yavlinsky': 35, 'yeltsin': 25, 'fedorov': 15, 'zyuganov': 10, 'gaidar': 10},
+        'military': {'lebed': 45, 'zyuganov': 20, 'zhirinovsky': 15, 'yeltsin': 10},
+        'new_russians': {'yeltsin': 60, 'gaidar': 20, 'yavlinsky': 10, 'zyuganov': 0}
+    };
+
+    // Политические взгляды
+    Q.view_preferences = {
+        'communists': {'zyuganov': 80, 'anpilov': 15, 'tyulkin': 5},
+        'nostalgic': {'zyuganov': 50, 'lebed': 20, 'fedorov': 15, 'zhirinovsky': 10},
+        'monarchists': {'lebed': 30, 'zhirinovsky': 30, 'zyuganov': 10, 'yeltsin': 5},
+        'nationalists': {'zhirinovsky': 40, 'lebed': 30, 'zyuganov': 15, 'yeltsin': 5},
+        'democrats': {'yeltsin': 40, 'yavlinsky': 30, 'gaidar': 15, 'fedorov': 10}
+    };
+
+    // Региональные базы (из предоставленной таблицы)
+    Q.regional_base = {
+        'center': {'yeltsin': 35.3, 'zyuganov': 32.0, 'lebed': 14.5, 'yavlinsky': 7.3, 'zhirinovsky': 5.7},
+        'north_west': {'yeltsin': 45.0, 'zyuganov': 18.0, 'lebed': 16.0, 'yavlinsky': 12.0, 'zhirinovsky': 6.0},
+        'south': {'yeltsin': 22.0, 'zyuganov': 48.0, 'lebed': 18.0, 'yavlinsky': 4.0, 'zhirinovsky': 6.0},
+        'volga': {'yeltsin': 32.0, 'zyuganov': 38.0, 'lebed': 13.0, 'yavlinsky': 6.0, 'zhirinovsky': 8.0},
+        'urals': {'yeltsin': 55.0, 'zyuganov': 15.0, 'lebed': 12.0, 'yavlinsky': 6.0, 'zhirinovsky': 7.0},
+        'siberia': {'yeltsin': 30.0, 'zyuganov': 35.0, 'lebed': 15.0, 'yavlinsky': 8.0, 'zhirinovsky': 10.0},
+        'far_east': {'yeltsin': 32.0, 'zyuganov': 28.0, 'lebed': 18.0, 'yavlinsky': 9.0, 'zhirinovsky': 11.0},
+        'abroad_cis': {'yeltsin': 30, 'zyuganov': 35, 'lebed': 10, 'yavlinsky': 10, 'zhirinovsky': 10},
+        'abroad_other': {'yeltsin': 60, 'zyuganov': 10, 'lebed': 5, 'yavlinsky': 20, 'zhirinovsky': 2}
+    };
+    Q.demo_initialized = 1;
+}
+
+// 2. РАСЧЕТ ДИНАМИЧЕСКИХ МОДИФИКАТОРОВ
+
+// Влияние радикализма игрока:
+// Чем выше радикализм, тем больше поддержка 'communists' и 'nostalgic', но меньше 'democrats' и 'traders'.
+var rad_mod = (Q.radicalism - 5) * 0.05;
+// Влияние угрозы диктатуры:
+// Чем выше, тем больше переток от нас к Ельцину и Явлинскому у интеллигенции и новых русских.
+var fear_mod = Q.communist_threat * 0.02;
+// Влияние СМИ:
+// Общий множитель для распространения наших успехов и черного пиара против нас.
+var media_mod = Q.media_penetration / 10;
+
+// 3. ПРИМЕНЕНИЕ МОДИФИКАТОРОВ К ГРУППАМ
+
+for (var cand of Q.candidates) {
+    for (var cl of Q.classes) {
+        var base = Q.class_preferences[cl][cand] || 0;
+        if (cand == Q.player_candidate) {
+            if (cl == 'workers') base += Q.radicalism * 0.5;
+            if (cl == 'intelligentsia' || cl == 'new_russians') base -= Q.radicalism * 1.0;
+            base -= fear_mod * 50;
         }
-        class_votes += Q[c+'_'+party];
+        if (cand == 'yeltsin') {
+            base += fear_mod * 30;
+            base += Q.admin_resource * 0.2;
+        }
+        Q[cl + '_' + cand] = Math.max(0, base);
     }
-    for (var party of Q.parties) {
-        Q[c + '_' + party + '_normalized'] = 100*Q[c+'_'+party]/class_votes;
-        Q[c + '_' + party + '_display'] = Math.round(100*Q[c+'_'+party]/class_votes);
+
+    for (var v of Q.views) {
+        var base = Q.view_preferences[v][cand] || 0;
+        if (cand == Q.player_candidate) {
+            if (v == 'communists') base += Q.radicalism * 2;
+            if (v == 'democrats') base -= Q.radicalism * 2;
+        }
+        Q[v + '_' + cand] = Math.max(0, base);
     }
 }
 
-// 1. calculate support for each of the parties
+// 4. ИТОГОВЫЙ СБОР ГОЛОСОВ (Агрегация)
+
 var total_support = 0;
-for (var party of Q.parties) {
-    var party_support = 0;
-    for (var c of Q.classes) {
-        // but this version is somewhat more entertaining and allows for wilder swings in votes.
-        // the other option basically necessitates a multi-class strategy. while the first option allows for a working-class-only strategy.
-        if (Q.old_demographics) {
-            // okay i'm pretty sure this is wrong, and the hard version is correct
-            // basically this allows for "spillover" effects in other demographics.
-            // so you can campaign among say the workers and 
-            party_support += Q[c]*Q[c+'_'+party];
-            // However, there should be a cap on how much party support you can get in a certain demo.
-        } else  {
-            party_support += Q[c]*Q[c+'_'+party+'_normalized'];
-        }
-    }
-    Q[party + '_support'] = party_support;
-    total_support += party_support;
-    if (party == "other") {
-        Q.cnblp_normalized = Q.rural_other_normalized*Q.rural;
-        Q.wp_normalized = (Q.new_middle_other_normalized*Q.new_middle) + (Q.old_middle_other_normalized*Q.old_middle);
-        if (Q.csvd_formed && !Q.aspd_other) Q.csvd_normalized = Q.workers_other_normalized*Q.workers;
-        if (Q.aspd_other) Q.aspd_normalized = (Q.workers_other_normalized*Q.workers) + (Q.unemployed_other_normalized*Q.unemployed);
-        if (Q.aspd_kvp) Q.aspd_normalized = (Q.workers_kvp_normalized*Q.workers) + (Q.unemployed_kvp_normalized*Q.unemployed);
-        if (Q.right_dnef) Q.right_dnef_normalized = ((Q.new_middle_dnef_normalized / 2)*Q.new_middle) + (Q.old_middle_dnef_normalized*Q.old_middle) + (Q.rural_dnef_normalized*Q.rural) + ((Q.catholics_dnef_normalized / 2)*Q.catholics);
-        if (Q.left_dnef) Q.left_dnef_normalized = ((Q.new_middle_dnef_normalized / 2)*Q.new_middle) + (Q.workers_dnef_normalized*Q.workers) + (Q.unemployed_dnef_normalized*Q.unemployed) + ((Q.catholics_dnef_normalized / 2)*Q.catholics);
-    }
-    if (party == "nsdap" && Q.nsdap_split) {
-        Q.nsdap_hitler_support = Q.rural_nsdap_normalized*Q.rural;
-        Q.nsdap_hitler_support += Q.old_middle_nsdap_normalized*Q.old_middle;
-        Q.nsdap_hitler_support += Q.catholics_nsdap_normalized*Q.catholics;
+var results = {};
 
-        if (Q.dsu_exist && !Q.nvf_exist) {
-            Q.dsu_support = Q.workers_nsdap*Q.workers*((120 - Q.sa_force) / 100);
-            Q.dsu_support += Q.unemployed_nsdap*Q.unemployed*((80 - Q.sa_force) / 100);
-            Q.dsu_support += Q.new_middle_nsdap*Q.new_middle;
-        } else if (!Q.dsu_exist && Q.nvf_exist) {
-            Q.nvf_support = Q.unemployed_nsdap*Q.unemployed*((120 - Q.sa_force) / 100);
-            Q.nvf_support += Q.workers_nsdap*Q.workers*((Q.sa_force - 80) / 100);
-            Q.nvf_support += Q.new_middle_nsdap*Q.new_middle;
-        } else if (Q.dsu_exist && Q.nvf_exist) {
-            Q.dsu_support = Q.workers_nsdap*Q.workers*((120 - Q.sa_force) / 100);
-            Q.dsu_support += Q.unemployed_nsdap*Q.unemployed*((80 - Q.sa_force) / 100);
-            Q.dsu_support += Q.new_middle_nsdap*Q.new_middle;
+for (var cand of Q.candidates) {
+    var cand_score = 0;
 
-            Q.nvf_support = Q.unemployed_nsdap*Q.unemployed*((120 - Q.sa_force) / 100);
-            Q.nvf_support += Q.workers_nsdap*Q.workers*((Q.sa_force - 80) / 100);
-        } else {
-            Q.nsdap_hitler_support += Q.workers_nsdap*Q.workers;
-            Q.nsdap_hitler_support += Q.unemployed_nsdap*Q.unemployed;
-            Q.nsdap_hitler_support += Q.new_middle_nsdap*Q.new_middle;
-        }
+    // Взвешенное среднее по всем измерениям
+    var class_score = 0;
+    for (var cl of Q.classes) class_score += (Q[cl]/100) * Q[cl + '_' + cand];
+
+    var view_score = 0;
+    for (var v of Q.views) view_score += (Q[v + '_view']/100) * Q[v + '_' + cand];
+
+    var urb_score = 0;
+    urb_score += (Q.urban/100) * (Q['urban_' + cand] || 10);
+    urb_score += (Q.rural/100) * (Q['rural_' + cand] || 10);
+
+    var age_score = 0;
+    age_score += (Q.young/100) * (Q['young_' + cand] || 10);
+    age_score += (Q.old/100) * (Q['old_' + cand] || 10);
+
+    var reg_score = 0;
+    for (var reg of Q.region_groups) {
+        var r_base = Q.regional_base[reg][cand] || 0;
+        var r_mod = Q[reg + '_bonus_' + cand] || 0;
+        reg_score += (1/Q.region_groups.length) * (r_base + r_mod);
+    }
+
+    // Итоговый балл кандидата
+    cand_score = (class_score * 0.3) + (view_score * 0.3) + (reg_score * 0.2) + (urb_score * 0.1) + (age_score * 0.1);
+
+    // Эффект админресурса для Ельцина
+    if (cand == 'yeltsin') {
+        cand_score += Q.admin_resource * 0.5;
+    }
+
+    results[cand] = cand_score;
+    total_support += cand_score;
+}
+
+// 5. НОРМАЛИЗАЦИЯ И ОБРАБОТКА СПЕЦУСЛОВИЙ
+
+for (var cand of Q.candidates) {
+    Q[cand + '_votes'] = (results[cand] / total_support) * 100;
+}
+
+// Снятие Жириновского/Явлинского (если произошло по сюжету)
+if (Q.yavlinsky_withdrawn) {
+    var transfer = Q.yavlinsky_votes * 0.55;
+    Q.yeltsin_votes += transfer;
+    Q.yavlinsky_votes = 0;
+}
+if (Q.zhirinovsky_withdrawn) {
+    var transfer = Q.zhirinovsky_votes * 0.35;
+    Q.zyuganov_votes += transfer * 0.6;
+    Q.lebed_votes += transfer * 0.4;
+    Q.zhirinovsky_votes = 0;
+}
+
+// Приближение к историческому результату (если игрок не мешает)
+// Это плавная коррекция "силы гравитации" истории
+var history_factor = Q.time / 20; // Усиливается к концу игры
+var historical_results = {
+    'yeltsin': 35.28, 'zyuganov': 32.03, 'lebed': 14.52,
+    'yavlinsky': 7.34, 'zhirinovsky': 5.70, 'fedorov': 0.92,
+    'gorbachev': 0.51, 'others': 3.7
+};
+
+for (var cand of Q.candidates) {
+    if (historical_results[cand]) {
+        Q[cand + '_votes'] = (Q[cand + '_votes'] * (1 - history_factor)) + (historical_results[cand] * history_factor);
     }
 }
-// 2. normalize support (fraction)
-// 3. Round to integers
-for (var party of Q.parties) {
-    Q[party+'_normalized'] = Q[party + '_support']/total_support;
-    if (party == "other") {
-        Q.cnblp_votes = (Q.cnblp_normalized/total_support);
-        Q.wp_votes = (Q.wp_normalized/total_support);
-        if (Q.csvd_formed && !Q.aspd_other) Q.csvd_votes = (Q.csvd_normalized/total_support);
-        if (Q.aspd_other || Q.aspd_kvp) Q.aspd_votes = (Q.aspd_normalized/total_support);
-        if (Q.right_dnef) Q.right_dnef_votes = (Q.right_dnef_normalized/total_support);
-        if (Q.left_dnef) Q.left_dnef_votes = (Q.left_dnef_normalized/total_support);
+
+// Округление и подготовка к выводу
+Q.sum_others = 0;
+for (var cand of Q.candidates) {
+    if (Q[cand + '_votes'] < 3 && cand != 'yeltsin' && cand != 'zyuganov') {
+        Q.sum_others += Q[cand + '_votes'];
+        Q[cand + '_is_other'] = 1;
+    } else {
+        Q[cand + '_is_other'] = 0;
     }
-    if (party == "nsdap" && Q.nsdap_split) {
-        Q.nsdap_hitler_normalized = Q.nsdap_hitler_support / total_support;
-        Q.dsu_normalized = Q.dsu_support / total_support;
-        if (Q.nvf_exist) Q.nvf_normalized = Q.nvf_support / total_support;
-        Q.nsdap_hitler_votes = Math.round(Q.nsdap_hitler_normalized*1000) / 10;
-        Q.dsu_votes = Math.round(Q.dsu_normalized*1000) / 10;
-        if (Q.nvf_exist) Q.nvf_votes = Math.round(Q.nvf_normalized*1000) / 10;
-    }
-    Q[party+'_votes'] = Math.round(Q[party+'_normalized']*1000)/ 10;
-    if (party == "other") {
-        Q.cnblp_votes = Math.round((Q.cnblp_votes*1000)/10);
-        Q.wp_votes = Math.round((Q.wp_votes*1000)/10);
-        if (Q.csvd_formed && !Q.aspd_other) Q.csvd_votes = Math.round((Q.csvd_votes*1000)/10);
-        if (Q.aspd_other || Q.aspd_kvp) Q.aspd_votes = Math.round((Q.aspd_votes*1000)/10);
-        if (Q.right_dnef) Q.right_dnef_votes = Math.round((Q.right_dnef_votes*1000)/10);
-        if (Q.left_dnef) Q.left_dnef_votes = Math.round((Q.left_dnef_votes*1000)/10);
-    }
+    Q[cand + '_print'] = Q[cand + '_votes'].toFixed(1);
 }
+Q.sum_others_print = Q.sum_others.toFixed(1);
+
 !}
 go-to: jumpScene
-
-# note: this is a helpful utility to deal with elections and so on.

@@ -1,0 +1,37 @@
+title: Выдвижение от «партии власти»
+subtitle: Февраль 1996 года
+new-page: true
+view-if: year == 1996 and month == 2 and party_of_power_nomination_seen == 0
+on-arrival: party_of_power_nomination_seen = 1;
+
+= Выдвижение от «партии власти»
+
+Наступает февраль, и всё внимание приковано к Кремлю. «Партия власти» должна определиться со своим кандидатом. Низкие рейтинги действующего президента заставляют окружение искать альтернативы, но Борис Ельцин полон решимости идти на второй срок.
+
+{!
+var chance = Math.random() * 100;
+var yeltsin_chance = 95;
+if (Q.player_candidate != 'zyuganov') {
+    yeltsin_chance -= 5;
+}
+
+if (chance < yeltsin_chance) {
+    Q.pop_candidate = 'yeltsin';
+} else if (chance < yeltsin_chance + 4) {
+    Q.pop_candidate = 'chernomyrdin';
+} else if (chance < yeltsin_chance + 4.5) {
+    Q.pop_candidate = 'gaidar';
+} else {
+    Q.pop_candidate = 'yavlinsky_support'; // Ельцин поддерживает Явлинского
+}
+!}
+
+[? if pop_candidate == 'yeltsin': **Борис Ельцин** официально объявил о своем выдвижении в Екатеринбурге. «Я не могу оставить страну на растерзание коммунистам», — заявил он. ?]
+[? if pop_candidate == 'chernomyrdin': Неожиданно для многих, Ельцин решил не баллотироваться, поддержав кандидатуру премьера **Виктора Черномырдина**. ?]
+[? if pop_candidate == 'gaidar': Шокирующее решение: «партия власти» делает ставку на **Егора Гайдара**, надеясь на консолидацию всех либеральных сил. ?]
+[? if pop_candidate == 'yavlinsky_support': В попытке предотвратить победу левых, Кремль заявляет о поддержке **Григория Явлинского** как единого демократического кандидата. ?]
+
+- @continue: Продолжить
+
+@continue
+go-to: main

@@ -1,0 +1,125 @@
+title: Особые сценарии
+new-page: true
+
+@third_force_unification
+view-if: days_until_election < 70 and days_until_election > 20 and third_force_seen == 0
+on-arrival: third_force_seen = 1;
+
+= Объединение «Третьей силы»
+
+Лебедь, Явлинский и Федоров ведут изнурительные переговоры о выдвижении единого кандидата. Если они договорятся, у них есть шанс обойти и Ельцина, и Зюганова, став «золотой серединой» для всей страны. Это смертельная угроза для нашей стратегии выхода во второй тур против «слабого» Ельцина.
+
+{!
+var chance = Math.random() * 100;
+var trigger_chance = 5;
+if (Q.yeltsin_votes > Q.zyuganov_votes) trigger_chance += 5;
+trigger_chance += Q.radicalism;
+if (Q.admin_resource > 8) trigger_chance += 10;
+if (Q.third_force_united == -1) trigger_chance = 0;
+
+if (chance < trigger_chance) {
+    Q.third_force_united = 1;
+} else {
+    Q.third_force_united = 0;
+}
+!}
+
+[? if third_force_united == 1 : Переговоры завершились успехом. Единым кандидатом стал **Александр Лебедь**. Григорий Явлинский и Святослав Федоров снимают свои кандидатуры в его пользу. Либеральный электорат «Яблока» и хозяйственный актив Федорова теперь работают на Генерала. ?]
+[? if third_force_united == 0 : Амбиции кандидатов помешали союзу. Григорий Явлинский заявил, что не будет «подпевать генералу», а Федоров не нашел понимания своей экономической программы. Каждый продолжит борьбу в одиночку. ?]
+
+- @third_force_effect: Грозный противник
+  view-if: third_force_united == 1
+- @continue: Продолжить
+  view-if: third_force_united == 0
+
+@third_force_effect
+on-arrival: {!
+Q.lebed_support += 22;
+Q.yavlinsky_withdrawn = 1;
+Q.fedorov_withdrawn = 1;
+Q.communist_threat += 2;
+Q.media_penetration += 1;
+!}
+go-to: main
+
+@election_cancellation
+view-if: started == 1 and days_until_election < 110 and cancel_check_timer == 0
+on-arrival: cancel_check_timer = 5; {!
+var chance = Math.random() * 100;
+var cancel_chance = 0.5;
+if (Q.radicalism > 8) cancel_chance += 3;
+if (Q.zyuganov_votes > 35) cancel_chance += 2;
+if (Q.tolerance < 3) cancel_chance += 10;
+if (Q.popular_unrest > 30) cancel_chance += 5;
+
+if (chance < cancel_chance) {
+    Q.election_cancelled = 1;
+} else {
+    Q.election_cancelled = 0;
+}
+!}
+
+[? if election_cancelled == 1 :
+= КРИЗИС: Отмена выборов
+Власть, опасаясь неизбежного поражения, решается на силовой сценарий. Глава СБП Коржаков убедил Ельцина, что проигрыш коммунистам — это конец России. Вводится чрезвычайное положение. Выборы отменены.
+?]
+
+- @game_over_cancellation: Провал кампании
+  view-if: election_cancelled == 1
+- @continue: Продолжить
+  view-if: election_cancelled == 0
+
+@game_over_cancellation
+on-arrival: {! Q.game_over_reason = 'cancelled'; !}
+go-to: game_over
+
+@military_coup_attempt
+view-if: army_loyalty < 20 and popular_unrest > 40 and coup_seen == 0
+on-arrival: coup_seen = 1;
+
+= Попытка военного переворота
+
+Ситуация в стране вышла из-под контроля. Огромные долги по зарплате военным привели к тому, что группа офицеров решила взять власть в свои руки. Они обращаются к вам за поддержкой.
+
+- @coup_support: Поддержать военных («Вся власть Комитету спасения!»).
+- @coup_refuse: Решительно осудить путч, выступить за законные выборы.
+- @coup_wait: Выжидать, чья возьмет.
+
+@coup_support
+on-arrival: {! Q.radicalism += 5; Q.tolerance = 0; Q.admin_resource = 0; !}
+Вы поставили всё на карту. [? if rel_military > 60: Армия поддержала выступление. Ельцин бежал. ?][? if rel_military <= 60: Путч был подавлен. Вас арестовывают. ?]
+go-to: game_over
+
+@coup_refuse
+on-arrival: {! Q.tolerance += 5; Q.communist_threat -= 10; Q.rel_military -= 20; Q.intellectual_capital += 10; !}
+Ваша приверженность закону успокоила общество. Рейтинг Ельцина рухнул, а вы стали главным гарантом стабильности.
+go-to: main
+
+@coup_wait
+on-arrival: {! Q.popular_unrest += 10; Q.admin_resource -= 2; !}
+Неопределенность ведет к крови. Пока вы медлили, инициативу перехватил Кремль.
+go-to: main
+
+@popular_uprising
+view-if: popular_unrest > 60 and uprising_seen == 0
+on-arrival: uprising_seen = 1;
+
+= Народный бунт
+
+Терпение народа лопнуло. Забастовки переросли в восстание. В регионах захватывают администрации.
+
+- @uprising_lead: Возглавить восстание («Вся власть Советам!»).
+- @uprising_calm: Призвать народ к спокойствию ради выборов.
+
+@uprising_lead
+on-arrival: {! Q.radicalism += 10; Q.street_power += 50; Q.tolerance = 0; !}
+[? if street_power > 40: Режим пал. Вы входите в Кремль на плечах восставших. ?][? if street_power <= 40: Восстание утоплено в крови. ?]
+go-to: game_over
+
+@uprising_calm
+on-arrival: {! Q.popular_unrest -= 30; Q.communist_threat -= 15; Q.tolerance += 3; Q.zyuganov_support += 5; !}
+Вы спасли страну от хаоса. Ельцин выглядит как банкрот. Дорога к законной победе открыта.
+go-to: main
+
+@continue
+go-to: main

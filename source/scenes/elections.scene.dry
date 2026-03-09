@@ -1,0 +1,196 @@
+title: ДЕНЬ ВЫБОРОВ
+new-page: true
+
+@elections
+on-arrival: {!
+Q.first_round_done = 1;
+// Финальный пересчет перед голосованием
+// Включаем влияние админресурса на итоговый результат
+Q.yeltsin_support += Q.admin_resource * 1.5;
+Q.zyuganov_support -= Q.admin_resource * 0.5;
+
+// Нормализация результатов для 1-го тура
+var total = Q.yeltsin_support + Q.zyuganov_support + Q.zhirinovsky_support + Q.lebed_support + Q.yavlinsky_support + Q.fedorov_support + Q.gaidar_support + Q.gorbachev_support + Q.others_support;
+
+Q.yeltsin_final_1 = (Q.yeltsin_support / total) * 100;
+Q.zyuganov_final_1 = (Q.zyuganov_support / total) * 100;
+Q.lebed_final_1 = (Q.lebed_support / total) * 100;
+Q.yavlinsky_final_1 = (Q.yavlinsky_support / total) * 100;
+Q.zhirinovsky_final_1 = (Q.zhirinovsky_support / total) * 100;
+
+// Округление для отображения
+Q.yeltsin_print_1 = Q.yeltsin_final_1.toFixed(2);
+Q.zyuganov_print_1 = Q.zyuganov_final_1.toFixed(2);
+Q.lebed_print_1 = Q.lebed_final_1.toFixed(2);
+Q.yavlinsky_print_1 = Q.yavlinsky_final_1.toFixed(2);
+Q.zhirinovsky_print_1 = Q.zhirinovsky_final_1.toFixed(2);
+!}
+
+= 16 ИЮНЯ 1996 ГОДА: ПЕРВЫЙ ТУР
+
+Избирательные участки по всей стране закрыты. Миллионы людей сделали свой выбор. В штабе НПСР царит напряженная атмосфера. Перед экранами телевизоров собрались все лидеры коалиции. Поступают первые данные экзит-поллов и протоколы с Дальнего Востока.
+
+[? if admin_resource > 8 : В ряде регионов зафиксированы грубые нарушения и массовые вбросы в пользу действующего президента. Наши наблюдатели пытаются опротестовать результаты, но суды хранят молчание. ?]
+
+- @first_round_results: Узнать результаты
+
+@first_round_results
+new-page: true
+
+= ИТОГИ ПЕРВОГО ТУРА
+
+Центральная избирательная комиссия оглашает предварительные результаты:
+
+*   **Борис Ельцин:** [+ yeltsin_print_1 +]%
+*   **Геннадий Зюганов:** [+ zyuganov_print_1 +]%
+*   **Александр Лебедь:** [+ lebed_print_1 +]%
+*   **Григорий Явлинский:** [+ yavlinsky_print_1 +]%
+*   **Владимир Жириновский:** [+ zhirinovsky_print_1 +]%
+
+---
+
+{!
+// Логика выхода во второй тур
+Q.into_second_round = [];
+var results = [
+    {name: 'yeltsin', val: Q.yeltsin_final_1},
+    {name: 'zyuganov', val: Q.zyuganov_final_1},
+    {name: 'lebed', val: Q.lebed_final_1},
+    {name: 'yavlinsky', val: Q.yavlinsky_final_1},
+    {name: 'zhirinovsky', val: Q.zhirinovsky_final_1}
+];
+results.sort((a, b) => b.val - a.val);
+Q.winner_1 = results[0].name;
+Q.second_1 = results[1].name;
+!}
+
+[? if winner_1 == 'zyuganov' : **Победа!** Мы заняли первое место в первом туре. Страна жаждет перемен, и мы — лидеры этой гонки. ?]
+[? if winner_1 == 'yeltsin' : Мы на втором месте. Власть сумела консолидировать свой электорат, но борьба еще не закончена. ?]
+[? if winner_1 != 'zyuganov' and second_1 != 'zyuganov' :
+**КАТАСТРОФА.** Мы не прошли во второй тур. Избиратель предпочел «Третью силу» или поддался на уговоры власти. Это политическая смерть нашего движения.
+- @game_over_loss: Признать поражение
+?]
+
+[? if second_1 == 'zyuganov' or winner_1 == 'zyuganov' :
+Предстоит решающая схватка во втором туре. Теперь всё зависит от того, за кого отдадут свои голоса сторонники проигравших кандидатов.
+
+- @inter_round_start: Подготовка ко второму туру
+?]
+
+@inter_round_start
+new-page: true
+
+= МЕЖДУТУРЬЕ: БИТВА ЗА ГОЛОСА
+
+До второго тура остается две недели. Главная интрига — позиция Александра Лебедя. Его 14-15% (или сколько он набрал у вас) решат исход выборов. Ельцин уже предложил ему пост секретаря Совбеза. Что предложим мы?
+
+- @appeal_lebed: Личное обращение к Лебедю: «Генерал, не предавайте своих избирателей!»
+- @appeal_yavlinsky: Попытаться перетянуть демократов Явлинского против «режима коррупции».
+- @appeal_zhirinovsky: Договориться с ЛДПР о «тактическом голосовании».
+- @appeal_people: Прямое обращение к народу через голову лидеров.
+
+@appeal_lebed
+on-arrival: {!
+if (Q.lebed_relation > 50) {
+    Q.lebed_support_2 = 0.6; // 60% его голосов к нам
+} else {
+    Q.lebed_support_2 = 0.2; // Только 20%
+}
+!}
+[? if lebed_relation > 50 : Лебедь колеблется. Он не принял пост у Ельцина официально и призвал своих сторонников «голосовать по совести», намекнув на необходимость смены курса. Это колоссальный успех! ?]
+[? if lebed_relation <= 50 : Лебедь официально вошел в команду Ельцина. «Дважды два — четыре, Лебедь — секретарь Совбеза», — шутит пресса. Почти все его голоса уйдут президенту. ?]
+- @final_stretch: К финальному голосованию
+
+@appeal_yavlinsky
+on-arrival: {!
+if (Q.yavlinsky_allied == 1 || Q.radicalism < 3) {
+    Q.yavlinsky_support_2 = 0.4;
+} else {
+    Q.yavlinsky_support_2 = 0.1;
+}
+!}
+[? if yavlinsky_allied == 1 : Явлинский заявил, что «из двух зол выбирать не будет», но его критика Ельцина стала еще жестче. Часть либералов решит остаться дома, что нам на руку. ?]
+[? if yavlinsky_allied == 0 : «Яблоко» призвало голосовать против «коммунистической реставрации». Демократический электорат консолидируется вокруг Ельцина. ?]
+- @final_stretch: К финальному голосованию
+
+@final_stretch
+on-arrival: {!
+Q.second_round_done = 1;
+
+// Итоговый расчет 2-го тура
+// База: наши голоса + перетоки
+var z_base = Q.zyuganov_final_1;
+var y_base = Q.yeltsin_final_1;
+
+// Перетоки от Лебедя
+z_base += Q.lebed_final_1 * (Q.lebed_support_2 || 0.3);
+y_base += Q.lebed_final_1 * (1 - (Q.lebed_support_2 || 0.3));
+
+// Перетоки от Явлинского
+z_base += Q.yavlinsky_final_1 * (Q.yavlinsky_support_2 || 0.1);
+y_base += Q.yavlinsky_final_1 * (0.7 - (Q.yavlinsky_support_2 || 0.1)); // Часть против всех
+
+// Перетоки от Жириновского (исторически 30-40% к Зюганову)
+z_base += Q.zhirinovsky_final_1 * 0.4;
+y_base += Q.zhirinovsky_final_1 * 0.3;
+
+// Влияние СМИ и админресурса во 2-м туре удваивается
+y_base += Q.admin_resource * 2;
+z_base -= Q.communist_threat * 0.5;
+
+// Нормализация до 100% (минус "против всех")
+var total_2 = z_base + y_base;
+Q.zyuganov_final_2 = (z_base / total_2) * 100;
+Q.yeltsin_final_2 = (y_base / total_2) * 100;
+
+Q.zyuganov_print_2 = Q.zyuganov_final_2.toFixed(2);
+Q.yeltsin_print_2 = Q.yeltsin_final_2.toFixed(2);
+!}
+
+= 3 ИЮЛЯ 1996 ГОДА: ВТОРОЙ ТУР
+
+Момент истины. Вся Россия пришла на участки. Результат определит судьбу страны на десятилетия вперед. Будет ли это возвращение к социалистическим идеалам или окончательное торжество олигархического капитализма?
+
+В штабе стоит мертвая тишина. Все глаза прикованы к табло ЦИК.
+
+- @final_results: УЗНАТЬ ИТОГ
+
+@final_results
+new-page: true
+
+= ОКОНЧАТЕЛЬНЫЕ РЕЗУЛЬТАТЫ ВЫБОРОВ
+
+После обработки 100% протоколов:
+
+*   **Геннадий Зюганов:** [+ zyuganov_print_2 +]%
+*   **Борис Ельцин:** [+ yeltsin_print_2 +]%
+
+---
+
+[? if zyuganov_final_2 > yeltsin_final_2 :
+# ПОБЕДА!
+
+Геннадий Зюганов — новый Президент Российской Федерации! Страна ликует. Люди выходят на улицы с красными флагами. В Кремле паника, чиновники спешно пакуют чемоданы. Мы совершили невозможное — победили всю мощь государственной машины и олигархии.
+
+Перед нами стоит задача восстановить страну, вернуть людям уверенность в завтрашнем дне и построить обновленный союз братских народов. Россия выбрала Красный путь!
+
+- @game_over_win: Вписать свое имя в историю
+?]
+
+[? if zyuganov_final_2 <= yeltsin_final_2 :
+# ПОРАЖЕНИЕ
+
+Борис Ельцин остается в Кремле еще на четыре года. Несмотря на все наши усилия, мощь пропаганды, деньги олигархов и административный ресурс оказались сильнее. «Партия власти» празднует победу под звон бокалов и салюты над Москвой.
+
+Для нашего движения начинаются тяжелые времена. Страна продолжит курс реформ, плоды которых будут пожинать немногие. Мы упустили исторический шанс вернуть Россию на путь справедливости.
+
+- @game_over_loss: Уйти в оппозицию
+?]
+
+@game_over_win
+on-arrival: {! Q.game_over_reason = 'victory'; !}
+go-to: game_over
+
+@game_over_loss
+on-arrival: {! Q.game_over_reason = 'defeat'; !}
+go-to: game_over

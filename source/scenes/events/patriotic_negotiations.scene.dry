@@ -1,0 +1,473 @@
+title: Народно-патриотический союз России
+new-page: true
+
+= Народно-патриотический союз
+
+Для победы на выборах нам необходима поддержка всех левых и патриотических организаций. Мы должны объединить их в мощный «Народно-патриотический союз России» (НПСР). Это сложнейшая задача: нужно примирить ортодоксальных марксистов, крестьян, «красных директоров» и даже верующих.
+
+От того, насколько монолитным будет наш блок, зависит не только результат первого тура, но и наша способность защитить победу в случае попыток фальсификаций со стороны власти.
+
+Выберите направление работы с союзниками:
+
+- #patriotic_negotiations
+- @back: Вернуться в штаб
+
+@rkp_branch
+title: РКРП (Виктор Тюлькин)
+tags: patriotic_negotiations
+view-if: rkp_allied == 0
+on-arrival: {! Q.patriotic_negotiations_timer = 2; !}
+
+= РКРП и Виктор Тюлькин
+
+Российская коммунистическая рабочая партия Виктора Тюлькина — это «совесть» движения. Они не признают частную собственность и презирают «парламентаризм». Тюлькин требует включения в программу пункта о «полной национализации» и возврате к власти Советов.
+
+- @rkp_accept: **Принять условия ортодоксов**. (Радикализм +2, Терпимость -2, Ресурсы +10)
+- @rkp_moderate: **Убеждать в необходимости широкого фронта**. (Радикализм -1)
+- @rkp_compromise: **Предложить им квоту в будущем правительстве**. (Ресурсы -10, Ресурсы штаба +5)
+- @rkp_split: **Попробовать переманить рядовые ячейки РКРП**. (Риск конфликта с Тюлькиным)
+
+@rkp_accept
+on-arrival: {!
+Q.rkp_support = 100;
+Q.rkp_allied = 1;
+Q.rel_patriotic_forces += 15;
+Q.radicalism += 2;
+Q.tolerance -= 3;
+Q.communist_threat += 4;
+Q.resources += 10;
+Q.workers_zyuganov += 10;
+!}
+Тюлькин удовлетворен: «Наконец-то вы заговорили языком Ленина!». РКРП полностью вливается в наши штабы. Теперь в каждом крупном городе у нас есть мобильные группы агитаторов. Однако на телевидении уже цитируют ваши новые программные пункты, пугая обывателей «грядущим ГУЛАГем».
+go-to: main
+
+@rkp_moderate
+on-arrival: {!
+Q.rkp_support = 40;
+Q.rel_patriotic_forces -= 5;
+Q.radicalism -= 1;
+Q.tolerance += 1;
+!}
+«Вы превращаетесь в социал-демократов», — констатирует Тюлькин. РКРП не будет мешать, но их участие в кампании будет формальным. Нам придется самим искать людей для черновой работы.
+go-to: main
+
+@rkp_compromise
+on-arrival: {!
+Q.rkp_support = 80;
+Q.rkp_allied = 1;
+Q.campaign_funds -= 20;
+Q.rel_patriotic_forces += 10;
+Q.admin_resource += 1;
+Q.resources += 5;
+!}
+Торг уместен. Обещание постов министров труда и тяжелой промышленности заставило радикалов поумерить пыл в риторике. Они будут работать на нас, ожидая своей доли власти. Мы получили опытных аппаратчиков из числа «старых коммунистов».
+go-to: main
+
+@rkp_split
+on-arrival: {!
+var chance = Math.random() * 100;
+if (chance < 40) {
+    Q.rkp_allied = 1;
+    Q.rkp_support = 60;
+    Q.resources += 5;
+    Q.rel_patriotic_forces -= 10;
+} else {
+    Q.rel_patriotic_forces -= 20;
+}
+!}
+Попытка раскола — опасная игра. [? if rkp_allied == 1: Нам удалось привлечь на свою сторону часть региональных лидеров РКРП. ?][? if rkp_allied == 0: Тюлькин разгадал наш маневр и объявил нам «священную войну». ?]
+go-to: main
+
+@tr_branch
+title: «Трудовая Россия» (Виктор Анпилов)
+tags: patriotic_negotiations
+view-if: tr_allied == 0
+on-arrival: {! Q.patriotic_negotiations_timer = 2; !}
+
+= «Трудовая Россия» и Виктор Анпилов
+
+Виктор Анпилов — пламенный трибун, способный поднять на ноги стадионы. Его электорат — самые обездоленные. Анпилов требует штурма информационной блокады и готов вывести людей на улицы.
+
+- @tr_full_alliance: **Заключить боевой союз**. (Радикализм +1.5, Уличная сила +15)
+- @tr_tactical: **Только тактическое взаимодействие**. (Держим дистанцию)
+- @tr_agitation: **Помочь Анпилову с изданием газеты «Молния»**. (Ресурсы -8, СМИ +2)
+- @tr_tent_city: **Организовать палаточный городок протеста**. (Популярность +5)
+
+@tr_full_alliance
+on-arrival: {!
+Q.tr_support = 100;
+Q.tr_allied = 1;
+Q.street_power += 15;
+Q.rel_patriotic_forces += 15;
+Q.radicalism += 1.5;
+Q.communist_threat += 3;
+Q.media_bias += 10;
+!}
+Анпиловские мегафоны теперь работают на нас! Наши митинги стали самыми многолюдными. Власть и олигархи теперь абсолютно уверены: «Зюганов — это только ширма для Анпилова». Кампания черного пиара усиливается. Но дух наших сторонников на высоте.
+go-to: main
+
+@tr_tactical
+on-arrival: {!
+Q.tr_support = 30;
+Q.street_power += 2;
+Q.rel_patriotic_forces += 5;
+!}
+Мы координируем график митингов, но избегаем совместных фото. Это сохраняет нам лицо перед умеренными, но лишает кампанию той энергии, которую дает Анпилов.
+go-to: main
+
+@tr_agitation
+on-arrival: {!
+Q.tr_support = 70;
+Q.tr_allied = 1;
+Q.resources -= 8;
+Q.campaign_funds -= 25;
+Q.media_penetration += 2.0;
+!}
+Газета «Молния» вышла миллионным тиражом. Анпилов доволен ресурсами и ведет агитацию в своем стиле, но под нашим общим брендом.
+go-to: main
+
+@tr_tent_city
+on-arrival: {!
+Q.tr_allied = 1;
+Q.street_power += 25;
+Q.tolerance -= 5;
+Q.popular_unrest += 15;
+Q.campaign_funds -= 40;
+!}
+Палатки на Васильевском спуске! Это дерзко. Весь мир смотрит на Москву. Рейтинги власти падают из-за неспособности навести порядок, но риск силового разгона и введения ЧП возрос многократно.
+go-to: main
+
+@apr_branch
+title: Аграрии (Михаил Лапшин)
+tags: patriotic_negotiations
+view-if: apr_allied == 0
+on-arrival: {! Q.patriotic_negotiations_timer = 2; !}
+
+= Аграрная партия России (АПР)
+
+Аграрии Лапшина — наш ключевой союзник в деревне. «Красный пояс» России держится на авторитете председателей колхозов.
+
+- @apr_subsidy: **Пообещать «Золотой дождь» для села**. (Фонды -50, Село +25)
+- @apr_land_holy: **Объявить землю общенародным достоянием**. (Радикализм +1)
+- @apr_coalition: **Предложить Лапшину пост вице-премьера**. (Админресурс +2)
+
+@apr_subsidy
+on-arrival: {!
+Q.apr_support = 100;
+Q.apr_allied = 1;
+Q.rural_support_mod += 25;
+Q.campaign_funds -= 50;
+Q.rel_patriotic_forces += 15;
+Q.rural_zyuganov += 20;
+!}
+Деревня за нас! Лапшин мобилизовал весь свой аппарат. В сельских районах Ельцину ловить нечего. Однако наши экономисты в ужасе от масштабов обещанных трат.
+go-to: main
+
+@apr_land_holy
+on-arrival: {!
+Q.apr_support = 90;
+Q.apr_allied = 1;
+Q.rural_support_mod += 15;
+Q.radicalism += 1;
+Q.rel_patriotic_forces += 10;
+!}
+Лозунг «Земля не товар!» нашел горячий отклик. Мы защитили крестьянина от страха прихода «новых помещиков».
+go-to: main
+
+@apr_coalition
+on-arrival: {!
+Q.apr_support = 100;
+Q.apr_allied = 1;
+Q.rel_patriotic_forces += 20;
+Q.admin_resource += 2;
+!}
+Личный союз лидеров. Лапшин стал верным соратником. АПР фактически сливается с КПРФ в единый механизм.
+go-to: main
+
+@power_to_people
+title: «Власть народу» (Николай Рыжков)
+tags: patriotic_negotiations
+view-if: ryzhkov_allied_prog == 0
+on-arrival: {! Q.patriotic_negotiations_timer = 2; !}
+
+= Блок «Власть народу» и Николай Рыжков
+
+Николай Рыжков пользуется огромным уважением у людей старшего поколения. Он придает нашей коалиции респектабельность.
+
+- @ryzhkov_program: **Сделать Рыжкова главным экономистом**. (Радикализм -2, Бюджетники +15)
+- @ryzhkov_soviet: **Создать теневой ВСНХ**. (Интеллектуальный капитал +20)
+
+@ryzhkov_program
+on-arrival: {!
+Q.ryzhkov_support = 100;
+Q.ryzhkov_allied_prog = 1;
+Q.radicalism -= 2;
+Q.intellectual_capital += 8;
+Q.budget_workers_zyuganov += 15;
+Q.intelligentsia_zyuganov += 12;
+Q.communist_threat -= 5;
+!}
+Рыжков на ТВ — бальзам на душу бюджетников. Его спокойный тон убеждает многих, что «коммунисты — это порядок». Наш рейтинг среди горожан пополз вверх.
+go-to: main
+
+@ryzhkov_soviet
+on-arrival: {!
+Q.ryzhkov_support = 80;
+Q.ryzhkov_allied_prog = 1;
+Q.intellectual_capital += 20;
+Q.rel_directors += 15;
+Q.resources += 5;
+!}
+Мы собрали вокруг Рыжкова лучших специалистов. Теперь у нас есть детальный план восстановления экономики. Это производит впечатление на серьезных людей.
+go-to: main
+
+@red_directors_f
+title: «Красные директора»
+tags: patriotic_negotiations
+view-if: directors_allied == 0
+on-arrival: {! Q.patriotic_negotiations_timer = 2; !}
+
+= «Красные директора»
+
+Руководители гигантов индустрии управляют многотысячными коллективами.
+
+- @directors_guarantee: **Гарантировать сохранение контроля**. (Ресурсы +25, Рабочие +15)
+- @directors_repatriation: **Обещать гособоронзаказ**. (Армия +20, ВПК +20)
+
+@directors_guarantee
+on-arrival: {!
+Q.rel_directors += 40;
+Q.directors_allied = 1;
+Q.resources += 25;
+Q.workers_zyuganov += 15;
+Q.radicalism -= 1.5;
+Q.rkp_support -= 20;
+!}
+Мы признали их право собственности в обмен на лояльность. Директора говорят рабочим: «Победит Зюганов — будут заказы». Это дает миллионы голосов в промзонах.
+go-to: main
+
+@directors_repatriation
+on-arrival: {!
+Q.rel_directors += 25;
+Q.directors_allied = 1;
+Q.rel_military += 20;
+Q.nationalists_zyuganov += 10;
+Q.resources += 10;
+!}
+Лозунг «Отечественному производителю — господдержку!» стал хитом. Мы сплотили тех, кто делает танки и самолеты.
+go-to: main
+
+@patriotic_intelligentsia_f
+title: Патриотическая интеллигенция
+tags: patriotic_negotiations
+view-if: intelligentsia_allied == 0
+on-arrival: {! Q.patriotic_negotiations_timer = 2; !}
+
+= Патриотическая интеллигенция
+
+Бондарев, Распутин, Проханов... Их поддержка дает нам моральное право говорить от имени русской культуры.
+
+- @intelligentsia_council: **Создать Совет спасения культуры**. (Интеллектуальный капитал +15)
+- @prokhanov_newspaper: **Газета «Завтра» как рупор**. (Радикализм +1.5, СМИ +3.5)
+
+@intelligentsia_council
+on-arrival: {!
+Q.intelligentsia_allied = 1;
+Q.rel_patriotic_forces += 15;
+Q.intellectual_capital += 15;
+Q.intelligentsia_zyuganov += 20;
+Q.nationalists_zyuganov += 10;
+!}
+Великие писатели встали под наши знамена. Мы превращаемся в партию национального возрождения.
+go-to: main
+
+@prokhanov_newspaper
+on-arrival: {!
+Q.intelligentsia_allied = 1;
+Q.media_penetration += 3.5;
+Q.radicalism += 1.5;
+Q.nationalists_zyuganov += 20;
+Q.rel_west -= 10;
+!}
+Проханов жжет глаголом! Газета «Завтра» дает нам небывалый подъем духа. Но его метафоры об «империи» пугают западных дипломатов.
+go-to: main
+
+@officers_union_f
+title: Союз офицеров (Станислав Терехов)
+tags: patriotic_negotiations
+view-if: officers_allied == 0
+on-arrival: {! Q.patriotic_negotiations_timer = 2; !}
+
+= Союз офицеров и Станислав Терехов
+
+Армия деморализована. Терехов призывает к наведению порядка железной рукой.
+
+- @officers_military: **Пообещать рост военного бюджета**. (Армия +35, Гарнизоны +25)
+- @officers_order: **Охрана участков и защита победы**. (Админресурс +4, Терпимость -5)
+
+@officers_military
+on-arrival: {!
+Q.rel_military += 35;
+Q.officers_allied = 1;
+Q.army_loyalty += 25;
+Q.rel_patriotic_forces += 10;
+Q.military_zyuganov += 25;
+Q.campaign_funds -= 25;
+!}
+Офицеры увидели в нас надежду. Это важно: если Ельцин решит отменить выборы, армия может не поддержать его приказ.
+go-to: main
+
+@officers_order
+on-arrival: {!
+Q.rel_military += 20;
+Q.officers_allied = 1;
+Q.admin_resource += 4;
+Q.tolerance -= 5;
+Q.communist_threat += 6;
+!}
+Создание дружин для охраны участков. Власть преподносит это как создание «штурмовых отрядов».
+go-to: main
+
+@podberezkin_branch
+title: «Духовное наследие» (Подберезкин)
+tags: patriotic_negotiations
+view-if: podberezkin_allied == 0
+on-arrival: {! Q.patriotic_negotiations_timer = 2; !}
+
+= «Духовное наследие» и Алексей Подберезкин
+
+Подберезкин — идеолог «державности». Его движение помогает КПРФ стать более современной.
+
+- @podberezkin_intel: **Сделать «Наследие» аналитическим центром**. (Интеллект +15)
+- @podberezkin_state: **Акцент на государственности и патриотизме**. (Умеренность +1)
+
+@podberezkin_intel
+on-arrival: {!
+Q.podberezkin_allied = 1;
+Q.intellectual_capital += 15;
+Q.rel_patriotic_forces += 10;
+Q.admin_resource += 2;
+!}
+Мы выглядим как партия, готовая к управлению сложной современной страной.
+go-to: main
+
+@podberezkin_state
+on-arrival: {!
+Q.podberezkin_allied = 1;
+Q.radicalism -= 1.5;
+Q.nationalists_zyuganov += 10;
+Q.communist_threat -= 5;
+Q.intelligentsia_zyuganov += 10;
+!}
+Мы привлекаем тех, кто не любит коммунизм, но любит Россию. Наш потенциал расширился.
+go-to: main
+
+@komsomol_branch
+title: Комсомол и молодежь
+tags: patriotic_negotiations
+view-if: komsomol_allied == 0
+on-arrival: {! Q.patriotic_negotiations_timer = 2; !}
+
+= Комсомол и молодежные организации
+
+Нас называют «партией пенсионеров». Нужно доказать, что левая идея жива среди молодежи.
+
+- @komsomol_rock: **Организовать рок-фестиваль «Красный драйв»**. (Молодежь +15)
+- @komsomol_work: **Трудовые десанты и помощь старикам**. (Популярность +10)
+
+@komsomol_rock
+on-arrival: {!
+Q.komsomol_allied = 1;
+Q.young_zyuganov += 20;
+Q.campaign_funds -= 40;
+Q.media_penetration += 1;
+!}
+Неожиданно! Коммунисты в коже и с гитарами. Это ломает стереотипы.
+go-to: main
+
+@komsomol_work
+on-arrival: {!
+Q.komsomol_allied = 1;
+Q.nostalgic_zyuganov += 10;
+Q.resources += 10;
+!}
+Молодые люди, помогающие ветеранам — это лучший пиар. Мы показали преемственность поколений.
+go-to: main
+
+@red_belt_governors
+title: Лидеры «Красного пояса»
+tags: patriotic_negotiations
+view-if: governors_allied == 0
+on-arrival: {! Q.patriotic_negotiations_timer = 2; !}
+
+= Губернаторы «Красного пояса»
+
+Стародубцев, Кондратенко... У нас есть свои главы регионов.
+
+- @governors_admin: **Задействовать местный админресурс**. (Админресурс +5)
+- @governors_protection: **Гарантировать им неприкосновенность**.
+
+@governors_admin
+on-arrival: {! Q.governors_allied = 1; Q.admin_resource += 5; Q.resources += 15; Q.tolerance -= 2; Q.rural_support_mod += 10; !}
+В ряде областей мы теперь имеем свое телевидение и газеты. Вбросы там будут невозможны.
+go-to: main
+
+@governors_protection
+on-arrival: {! Q.governors_allied = 1; Q.rel_patriotic_forces += 10; Q.admin_resource += 3; !}
+Мы закрепили союз с региональными элитами. Они не боятся нашей победы.
+go-to: main
+
+@cossacks_branch
+title: Казачество (Александр Мартынов)
+tags: patriotic_negotiations
+view-if: cossacks_allied == 0
+on-arrival: {! Q.patriotic_negotiations_timer = 2; !}
+
+= Казачество и Союз казаков России
+
+Союз казаков Мартынова — это мощная патриотическая сила на Юге России.
+
+- @cossacks_land: **Пообещать казачье самоуправление и землю**. (Юг +15)
+- @cossacks_service: **Обещать восстановление казачьих частей**. (Патриотизм +10)
+
+@cossacks_land
+on-arrival: {! Q.cossacks_allied = 1; Q.south_bonus_zyuganov += 20; Q.nationalists_zyuganov += 10; Q.rel_patriotic_forces += 5; !}
+Дон, Кубань и Терек за нас! Это мощный сигнал всем патриотам России.
+go-to: main
+
+@cossacks_service
+on-arrival: {! Q.cossacks_allied = 1; Q.rel_military += 10; Q.nationalists_zyuganov += 15; Q.resources += 5; !}
+Казаки видят в нас защитников государственности. Мы получили тысячи воинов-добровольцев.
+go-to: main
+
+@patriotic_church_f
+title: Отношения с РПЦ
+tags: patriotic_negotiations
+view-if: church_allied == 0
+on-arrival: {! Q.patriotic_negotiations_timer = 2; !}
+
+= Отношения с Церковью
+
+Иерархи РПЦ помнят гонения, но не любят «либеральный разврат».
+
+- @church_social: **Упор на «Социальное православие»**. (РПЦ +20)
+- @church_visit: **Встреча Зюганова с Патриархом Алексием II**. (РПЦ +45)
+- @church_charity: **Помощь в восстановлении Храма Христа Спасителя**. (Фонды -60)
+
+@church_social
+on-arrival: {! Q.rel_roc += 20; Q.church_allied = 1; Q.radicalism -= 1; Q.nationalists_zyuganov += 10; Q.nostalgic_zyuganov += 5; Q.communist_threat -= 3; !}
+Мы нашли общие точки: «Справедливость — это по-божески».
+go-to: main
+
+@church_visit
+on-arrival: {! Q.rel_roc += 45; Q.church_allied = 1; Q.radicalism -= 2; Q.communist_threat -= 12; Q.media_penetration += 1; Q.intellectual_capital += 5; !}
+Фотография лидера, смиренно беседующего с Патриархом, обошла все газеты. Мы стали признанной частью национального истеблишмента.
+go-to: main
+
+@church_charity
+on-arrival: {! Q.rel_roc += 35; Q.church_allied = 1; Q.campaign_funds -= 60; Q.media_penetration += 1.0; !}
+Мы показали, что готовы исправлять ошибки прошлого делом. Это произвело впечатление на церковные круги.
+go-to: main
+
+@back
+go-to: main

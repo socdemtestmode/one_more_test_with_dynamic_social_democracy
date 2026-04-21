@@ -1,24 +1,15 @@
 {
-  "name": "social_democracy_alternate_history",
-  "version": "0.11.1",
-  "description": "Building the game:",
-  "main": "out/html/index.html",
-  "scripts": {
-    "dendrynexus": "dendrynexus"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/originn0/dynamic_social_democracy.git"
-  },
-  "keywords": [],
-  "author": "Autumn Chen",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/originn0/dynamic_social_democracy/issues"
-  },
-  "homepage": "https://github.com/originn0/dynamic_social_democracy",
+  "name": "dendry-decompiler",
+  "version": "1.0.0",
+  "description": "A decompiler for Dendry games",
+  "main": "decompiler.js",
   "dependencies": {
-    "dendrynexus": "github:originn0/dendrynexus",
-    "parliament-svg": "^3.0.0"
-  }
+    "dendrynexus": "^1.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jules",
+  "license": "MIT"
 }

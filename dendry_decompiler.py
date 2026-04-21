@@ -4,7 +4,9 @@ import sys
 import tempfile
 import shutil
 
-# Embedded JS decompiler logic for standalone use
+# This script is a unified wrapper for the Node.js decompiler.
+# It embeds the decompiler.js logic and runs it using Node.js.
+
 DECOMPILER_JS = r"""
 const fs = require('fs');
 const path = require('path');
@@ -12,14 +14,14 @@ const vm = require('vm');
 
 function extractJsonFromCoreJs(coreJsPath) {
     const content = fs.readFileSync(coreJsPath, 'utf8');
-    const marker = "window.game={compiled:";
-    const startIdx = content.indexOf(marker);
-    if (startIdx === -1) {
+    const regex = /window\.game\s*=\s*\{\s*(?:"compiled"|'compiled'|compiled)\s*:\s*/;
+    const match = content.match(regex);
+    if (!match) {
         try { return JSON.parse(content); } catch(e) {
             throw new Error("Could not find window.game={compiled: in " + coreJsPath);
         }
     }
-    const afterMarker = content.substring(startIdx + marker.length).trim();
+    const afterMarker = content.substring(match.index + match[0].length).trim();
     const quoteChar = afterMarker[0];
     let jsonStrRaw = "";
     let escaped = false;
@@ -65,43 +67,69 @@ const scenePropertyMap = {
 
 function decompileLogic(code, isPredicate = true) {
     if (typeof code !== 'string') return code;
-    let logic = code.startsWith('return ') ? code.substring(7).replace(/;$/, '') : code;
-    logic = logic.replace(/\s*!==\s*0/g, "");
-    logic = logic.replace(/\s*\|\|\s*0/g, "");
-    logic = logic.replace(/Q\[\x27(.*?)\x27\]/g, "$1");
-    logic = logic.replace(/Q\["(.*?)"\]/g, "$1");
-    logic = logic.replace(/Q\.(.*?)(?=[^a-zA-Z0-9_]|$)/g, "$1");
-    logic = logic.replace(/this\.state\.visits/g, "state.visits");
-    logic = logic.replace(/state\.visits\[\x27(.*?)\x27\]/g, "@$1");
-    logic = logic.replace(/state\.visits\["(.*?)"\]/g, "@$1");
+
     if (isPredicate) {
-        logic = logic.replace(/===/g, "=").replace(/==/g, "=");
-        logic = logic.replace(/&&/g, " and ").replace(/\|\|/g, " or ").replace(/!/g, " not ");
+        let logic = code.startsWith('return ') ? code.substring(7).replace(/;$/, '') : code;
+
+        logic = logic.replace(/\(\s*Q\[['"]([^'"]+)['"]\]\s*\|\|\s*0\s*\)/g, "$1");
+        logic = logic.replace(/\(\s*Q\.([a-zA-Z0-9_]+)\s*\|\|\s*0\s*\)/g, "$1");
+        logic = logic.replace(/Q\[['"]([^'"]+)['"]\]/g, "$1");
+        logic = logic.replace(/Q\.([a-zA-Z0-9_]+)/g, "$1");
+        logic = logic.replace(/state\.visits\[['"]([^'"]+)['"]\]/g, '@$1');
+        logic = logic.replace(/state\.visits\.([a-zA-Z0-9_]+)/g, '@$1');
+        logic = logic.replace(/this\.state\.visits/g, "state.visits");
+        logic = logic.replace(/\(\s*([a-zA-Z0-9_@]+)\s*\|\|\s*0\s*\)/g, "$1");
+        logic = logic.replace(/\(\s*\(\s*([a-zA-Z0-9_@]+)\s*\)\s*!==\s*0\s*\)/g, '$1');
+        logic = logic.replace(/\(\s*([a-zA-Z0-9_@]+)\s*!==\s*0\s*\)/g, '$1');
+        logic = logic.replace(/\s*!==\s*0(?=[^0-9]|$)/g, '');
+
+        logic = logic.replace(/===/g, ' = ').replace(/==/g, ' = ');
+        logic = logic.replace(/!==/g, ' != ').replace(/!=/g, ' != ');
+        logic = logic.replace(/&&/g, ' and ').replace(/\|\|/g, ' or ');
+        logic = logic.replace(/!/g, 'not ');
+
+        logic = logic.replace(/\s+/g, ' ').trim();
+
         let changed = true;
         while (changed) {
-            changed = false; let next = logic;
-            next = next.replace(/\(\s*([a-zA-Z_@0-9.]+)\s*\)/g, "$1");
-            next = next.replace(/\(\s*([a-zA-Z_@0-9.]+\s*(=|!=|>|<|>=|<=)\s*[a-zA-Z_@0-9.]+)\s*\)/g, "$1");
-            next = next.replace(/\(\s*\(([^()]+?)\)\s*\)/g, "($1)");
-            next = next.replace(/\(\s*([^()]+? and [^()]+?)\s*\)\s*and/g, "$1 and");
+            changed = false;
+            if (logic.startsWith('(') && logic.endsWith(')')) {
+                let count = 0, balanced = true;
+                for (let i = 0; i < logic.length - 1; i++) {
+                    if (logic[i] === '(') count++; if (logic[i] === ')') count--;
+                    if (count === 0 && i > 0) { balanced = false; break; }
+                }
+                if (balanced) { logic = logic.substring(1, logic.length - 1); changed = true; }
+            }
+            let next = logic.replace(/\(\s*([a-zA-Z_@0-9.\s'"]+(?:=|!=|<|>|<=|>=)[a-zA-Z_@0-9.\s'"]+)\s*\)/g, "$1");
+            if (next !== logic) { logic = next; changed = true; }
+            next = logic.replace(/\(\s*([a-zA-Z_@0-9.]+)\s*\)/g, "$1");
+            if (next !== logic) { logic = next; changed = true; }
+            next = logic.replace(/\(\s*(not\s+[a-zA-Z_@0-9.]+)\s*\)/g, "$1");
+            if (next !== logic) { logic = next; changed = true; }
+            next = logic.replace(/\(\s*([^()]+? and [^()]+?)\s*\)\s*and/g, "$1 and");
             next = next.replace(/and\s*\(\s*([^()]+? and [^()]+?)\s*\)/g, "and $1");
             next = next.replace(/\(\s*([^()]+? or [^()]+?)\s*\)\s*or/g, "$1 or");
             next = next.replace(/or\s*\(\s*([^()]+? or [^()]+?)\s*\)/g, "or $1");
             if (next !== logic) { logic = next; changed = true; }
+            logic = logic.replace(/\s{2,}/g, ' ');
         }
-        if (logic.startsWith('(') && logic.endsWith(')')) {
-            let inner = logic.substring(1, logic.length - 1), balance = 0, ok = true;
-            for (let i = 0; i < inner.length; i++) {
-                if (inner[i] === '(') balance++; else if (inner[i] === ')') balance--;
-                if (balance < 0) { ok = false; break; }
-            }
-            if (ok && balance === 0) logic = inner;
-        }
-        return logic.replace(/\s+/g, " ").trim();
+        return logic.trim();
+    } else {
+        let actions = code;
+        if (actions.includes('//') || actions.includes('/*') || actions.includes('if (') || actions.includes('if(') || actions.includes('{')) return actions;
+        actions = actions.replace(/\n/g, '; ');
+        actions = actions.replace(/\(\s*Q\[['"]([^'"]+)['"]\]\s*\|\|\s*0\s*\)/g, "$1");
+        actions = actions.replace(/\(\s*Q\.([a-zA-Z0-9_]+)\s*\|\|\s*0\s*\)/g, "$1");
+        actions = actions.replace(/Q\[['"]([^'"]+)['"]\]/g, "$1");
+        actions = actions.replace(/Q\.([a-zA-Z0-9_]+)/g, "$1");
+        actions = actions.replace(/state\.visits\[['"]([^'"]+)['"]\]/g, '@$1');
+        actions = actions.replace(/state\.visits\.([a-zA-Z0-9_]+)/g, '@$1');
+        actions = actions.replace(/([a-zA-Z_][a-zA-Z0-9_@]*)\s*=\s*\1\s*([\+\-\*\/])\s*([^;]+)/g, '$1 $2= $3');
+        actions = actions.replace(/([a-zA-Z_][a-zA-Z0-9_@]*)\s*=\s*([^;]+)/g, '$1 = $2');
+        let lines = actions.split(';').map(s => s.trim()).filter(s => s);
+        return lines.join('; ');
     }
-    logic = logic.replace(/([a-zA-Z_@0-9.]+)\s*=\s*\(\s*\1\s*\|\|\s*0\s*\)\s*\+\s*(.*?)(;|$)/g, "$1 += $2$3");
-    logic = logic.replace(/([a-zA-Z_@0-9.]+)\s*=\s*\(\s*\1\s*\|\|\s*0\s*\)\s*-\s*(.*?)(;|$)/g, "$1 -= $2$3");
-    return logic.trim();
 }
 
 function decompileContent(content, stateDependencies, isOneLine = false) {
@@ -154,12 +182,18 @@ function decompileScene(scene, rootId) {
     let lines = [];
     const isRoot = scene.id === rootId;
     if (!isRoot) {
-        let shortId = scene.id.startsWith(rootId + ".") ? scene.id.substring(rootId.length + 1) : scene.id;
+        let shortId = scene.id;
+        if (shortId.startsWith(rootId + ".")) shortId = shortId.substring(rootId.length + 1);
         lines.push(`@${shortId}`);
     }
     let stateDeps = scene.stateDependencies || (scene.content && scene.content.stateDependencies);
-    for (let key in scene) {
-        if (['id', 'type', 'content', 'options', 'stateDependencies'].includes(key)) continue;
+    const order = ['title', 'viewIf', 'chooseIf', 'onArrival', 'maxVisits', 'newPage', 'setRoot', 'goTo'];
+    let keys = Object.keys(scene).filter(k => !['id', 'type', 'content', 'options', 'stateDependencies'].includes(k));
+    keys.sort((a, b) => {
+        let ka = order.indexOf(a), kb = order.indexOf(b);
+        return (ka === -1 ? 999 : ka) - (kb === -1 ? 999 : kb);
+    });
+    for (let key of keys) {
         let value = scene[key];
         if (value === undefined || value === null) continue;
         if (key === 'countVisitsMax' && scene.maxVisits !== undefined && value === scene.maxVisits) continue;
@@ -167,8 +201,7 @@ function decompileScene(scene, rootId) {
         if (['onArrival', 'onDeparture', 'onDisplay'].includes(key)) {
             let actions = value.map(a => a.$code).join('\n').trim();
             let decompiled = decompileLogic(actions, false);
-            const isComplex = decompiled.includes('\n') || decompiled.includes(';') || decompiled.includes('{') || decompiled.includes('Q.') || decompiled.includes('this.');
-            if (isComplex) {
+            if (decompiled.includes('\n') || decompiled.includes('//') || decompiled.includes('/*') || decompiled.includes('{')) {
                 lines.push(`${dryKey}: {!`);
                 lines.push(decompiled);
                 lines.push(`!}`);
@@ -176,13 +209,15 @@ function decompileScene(scene, rootId) {
         } else if (['goTo', 'goSub', 'goSubStart', 'goSubEnd'].includes(key)) {
             if (Array.isArray(value)) {
                 let parts = value.map(v => {
-                    let sid = v.id.startsWith(rootId + ".") ? "@" + v.id.substring(rootId.length + 1) : v.id;
-                    return sid + (v.predicate ? ` if ${decompileLogic(v.predicate.$code)}` : "");
+                    let sid = v.id;
+                    if (sid.startsWith(rootId + ".")) sid = sid.substring(rootId.length + 1);
+                    return (sid.includes('.') ? sid : "@" + sid) + (v.predicate ? ` if ${decompileLogic(v.predicate.$code)}` : "");
                 });
                 lines.push(`${dryKey}: ${parts.join('; ')}`);
             } else {
-                let sid = value.startsWith(rootId + ".") ? "@" + value.substring(rootId.length + 1) : value;
-                lines.push(`${dryKey}: ${sid}`);
+                let sid = value;
+                if (sid.startsWith(rootId + ".")) sid = sid.substring(rootId.length + 1);
+                lines.push(`${dryKey}: ${sid.includes('.') ? sid : "@" + sid}`);
             }
         } else if (key === 'tags') {
             lines.push(`${dryKey}: ${Array.isArray(value) ? value.join(', ') : value}`);
@@ -196,20 +231,26 @@ function decompileScene(scene, rootId) {
     }
     if (scene.content) {
         let content = decompileContent(scene.content, stateDeps).trim();
-        if (content) lines.push("", content);
+        if (content) { lines.push(""); lines.push(content); }
     }
     if (scene.options && scene.options.length > 0) {
         lines.push("");
         scene.options.forEach(opt => {
-            let sid = opt.id.startsWith(rootId + ".") ? "@" + opt.id.substring(rootId.length + 1) : opt.id;
-            let line = `- ${sid}`;
+            let shortId = opt.id;
+            if (shortId.startsWith(rootId + ".")) shortId = shortId.substring(rootId.length + 1);
+            if (!shortId.startsWith("@")) shortId = "@" + shortId;
+            let line = `- ${shortId}`;
             if (opt.title) {
                 let t = decompileContent(opt.title, stateDeps, true).trim();
                 if (t) line += `: ${t}`;
             }
             lines.push(line);
-            for (let k in opt) {
-                if (k === 'id' || k === 'title') continue;
+            let optKeys = Object.keys(opt).filter(k => k !== 'id' && k !== 'title');
+            optKeys.sort((a, b) => {
+                let ka = order.indexOf(a), kb = order.indexOf(b);
+                return (ka === -1 ? 999 : ka) - (kb === -1 ? 999 : kb);
+            });
+            for (let k of optKeys) {
                 let val = opt[k];
                 let dKey = scenePropertyMap[k] || camelToKebab(k);
                 lines.push(`  ${dKey}: ${val && val.$code ? decompileLogic(val.$code) : val}`);
@@ -219,7 +260,7 @@ function decompileScene(scene, rootId) {
     return lines.join('\n');
 }
 
-function runDecompiler(game, outputDir) {
+function runDecompiler(game, outputDir, idToPathMap = {}) {
     if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
     let info = "";
     const infoKeys = ['title', 'author', 'ifid'];
@@ -233,7 +274,7 @@ function runDecompiler(game, outputDir) {
         const qdir = path.join(outputDir, 'qdisplays');
         if (!fs.existsSync(qdir)) fs.mkdirSync(qdir);
         for (let id in game.qdisplays) {
-             let res = "", qd = game.qdisplays[id];
+             let res = "\n", qd = game.qdisplays[id];
              if (qd.content && Array.isArray(qd.content)) {
                  qd.content.forEach(range => {
                      let r = "(" + (range.min ?? "") + ".." + (range.max ?? "") + ") ";
@@ -241,7 +282,7 @@ function runDecompiler(game, outputDir) {
                      res += r + "\n";
                  });
              }
-             fs.writeFileSync(path.join(qdir, `${id}.qdisplay.dry`), "\n" + res.trim() + "\n");
+             fs.writeFileSync(path.join(qdir, `${id}.qdisplay.dry`), res);
         }
     }
     if (game.qualities) {
@@ -265,13 +306,17 @@ function runDecompiler(game, outputDir) {
     }
     for (let rootId in rootScenes) {
         let scenes = rootScenes[rootId];
-        scenes.sort((a, b) => (a.id === rootId ? -1 : (b.id === rootId ? 1 : a.id.localeCompare(b.id))));
         let dryContent = "";
         scenes.forEach((scene, index) => {
             if (index > 0) dryContent += "\n\n";
             dryContent += decompileScene(scene, rootId);
         });
-        fs.writeFileSync(path.join(scenesDir, `${rootId}.scene.dry`), dryContent + "\n");
+        let relPath = idToPathMap[rootId] || `${rootId}.scene.dry`;
+        let filePath = path.join(scenesDir, relPath);
+        if (relPath.startsWith('scenes/')) filePath = path.join(outputDir, relPath);
+        const fileDir = path.dirname(filePath);
+        if (!fs.existsSync(fileDir)) fs.mkdirSync(fileDir, { recursive: true });
+        fs.writeFileSync(filePath, dryContent + "\n");
     }
 }
 
